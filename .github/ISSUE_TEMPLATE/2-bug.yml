@@ -24,7 +24,7 @@ body:
     id: aconteceu
     attributes:
       label: O que aconteceu
-      description: Prints ou um vídeo curto ajudam muito. Sem as imagens e animações de exercício da Gym visual, que não podem passar por ferramentas de IA.
+      description: "Prints ou um vídeo curto ajudam muito. Não mostre as fotos e animações de exercício da Gym visual: as issues e os PRs são lidos por agentes de IA, e essas mídias não podem passar por eles."
     validations:
       required: true
   - type: dropdown
@@ -35,14 +35,27 @@ body:
       options:
         - iPhone
         - Apple Watch
-        - Widget, Live Activity ou complicação
+        - Widget
+        - Live Activity ou Dynamic Island
+        - Complicação
+        - Controle
         - Simulador
         - Outro
     validations:
       required: true
   - type: input
+    id: aparelho
+    attributes:
+      label: Aparelho e sistema
+      description: O modelo e a versão do iOS ou do watchOS.
+      placeholder: "iPhone 16, iOS 26.1; Apple Watch Series 10, watchOS 26.1"
+    validations:
+      required: true
+  - type: input
     id: versao
     attributes:
-      label: Versão
-      description: A versão e o build, como aparecem no TestFlight.
+      label: Versão do app
+      description: A versão e o build do TestFlight, ou a branch e o commit se for build do Xcode.
       placeholder: "0.1 (12)"
+    validations:
+      required: true

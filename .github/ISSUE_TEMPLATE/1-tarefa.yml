@@ -24,8 +24,9 @@ body:
     attributes:
       label: Como saber que está pronto
       description: Uma lista que dá para conferir.
-      value: |
-        - [ ] 
+      placeholder: |
+        - [ ] O app abre no simulador do iPhone
+        - [ ] Os testes novos passam
     validations:
       required: true
   - type: textarea

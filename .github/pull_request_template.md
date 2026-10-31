@@ -1,4 +1,5 @@
-<!-- Um PR, uma issue. O título diz o que muda. -->
+<!-- Um PR, uma issue. O título diz o que muda. Squash em develop depois da CI verde e da revisão. -->
+<!-- Num PR sync/opengym-<data> (seção 9.1), os itens de issue única e de catalogue/media não valem: ele traz o que mudou no openGym. -->
 
 Closes #
 
@@ -13,11 +14,12 @@ Closes #
 - [ ] Só documentação ou configuração
 
 ### Para o founder ver
-<!-- Prints de antes e depois quando o visual muda, e um vídeo curto quando há movimento. Sem as imagens e animações de exercício da Gym visual, que não podem passar por ferramentas de IA. -->
+<!-- Prints de antes e depois quando o visual muda, e um vídeo curto quando há movimento. No PR de fim de fase, o link do build interno do TestFlight. Não mostre as fotos e animações de exercício da Gym visual: os PRs são lidos por agentes de IA, e essas mídias não podem passar por eles. -->
 
 ### Checklist
 - [ ] Uma issue só, e o "Closes #" aponta para ela
+- [ ] CI verde (`tests-ok`)
 - [ ] Nenhuma dependência nova, ou o porquê está aqui
-- [ ] Nenhuma mídia maior que 180 px, e nada em `data/` ou `catalogue/media/`
+- [ ] Nenhuma mídia de exercício nova ou acima de 180 px, e nada novo em `data/` ou `catalogue/media/`
 - [ ] Texto para o usuário simples, sem travessão
 - [ ] Revisão de um segundo agente, sem nada aberto

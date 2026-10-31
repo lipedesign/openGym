@@ -1,4 +1,4 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
   - name: Documento de design do HexGym
     url: https://github.com/lipedesign/openGym/blob/develop/docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md
