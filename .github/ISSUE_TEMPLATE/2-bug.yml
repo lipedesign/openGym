@@ -1,0 +1,48 @@
+name: Bug
+description: Algo no HexGym não funciona como deveria.
+labels: ["bug"]
+projects: ["lipedesign/6"]
+body:
+  - type: textarea
+    id: o-que-fez
+    attributes:
+      label: O que você fez
+      description: Os passos, o mais preciso que der.
+      placeholder: |
+        1. Abri ...
+        2. Toquei em ...
+        3. Aconteceu ...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que esperava
+    validations:
+      required: true
+  - type: textarea
+    id: aconteceu
+    attributes:
+      label: O que aconteceu
+      description: Prints ou um vídeo curto ajudam muito. Sem as imagens e animações de exercício da Gym visual, que não podem passar por ferramentas de IA.
+    validations:
+      required: true
+  - type: dropdown
+    id: onde
+    attributes:
+      label: Onde
+      multiple: true
+      options:
+        - iPhone
+        - Apple Watch
+        - Widget, Live Activity ou complicação
+        - Simulador
+        - Outro
+    validations:
+      required: true
+  - type: input
+    id: versao
+    attributes:
+      label: Versão
+      description: A versão e o build, como aparecem no TestFlight.
+      placeholder: "0.1 (12)"

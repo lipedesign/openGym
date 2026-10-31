@@ -1,14 +1,5 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: Question or self-hosting help
-    url: https://github.com/DuarteSantos8/openGym/discussions/categories/q-a
-    about: Login/passkey trouble, reverse proxies, Docker, "how do I…"? Ask in Q&A, not in an issue.
-  - name: Idea or feature request to talk through
-    url: https://github.com/DuarteSantos8/openGym/discussions/categories/ideas
-    about: Not sure it belongs in the app yet? Float it in Ideas first, issues are for agreed work.
-  - name: Show your setup
-    url: https://github.com/DuarteSantos8/openGym/discussions/categories/show-and-tell
-    about: Running openGym somewhere interesting, or built something on top of it? Show it off.
-  - name: Contributing guide
-    url: https://github.com/DuarteSantos8/openGym/blob/main/CONTRIBUTING.md
-    about: Project layout, dev setup and guidelines before you open a PR.
+  - name: Documento de design do HexGym
+    url: https://github.com/lipedesign/openGym/blob/develop/docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md
+    about: As fases, as decisões e o caminho de uma issue (seção 9.1).
