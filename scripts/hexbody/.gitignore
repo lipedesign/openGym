@@ -1,0 +1,5 @@
+work/
+__pycache__/
+# raster.py output, rebuilt from <fig>.json
+musclemap/labels_*.npy
+musclemap/labels_*.png
