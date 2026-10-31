@@ -1,5 +1,5 @@
 <!-- Um PR, uma issue. O título diz o que muda. Squash em develop depois da CI verde e da revisão. -->
-<!-- Num PR sync/opengym-<data> (seção 9.1), os itens de issue única e de catalogue/media não valem: ele traz o que mudou no openGym. -->
+<!-- Num PR sync/opengym-<data> (seção 9.1, etiqueta upstream), os itens de issue única e de catalogue/media não valem, porque ele traz o que mudou no openGym. Esse PR entra com merge normal, nunca squash. -->
 
 Closes #
 
@@ -18,7 +18,7 @@ Closes #
 
 ### Checklist
 - [ ] Uma issue só, e o "Closes #" aponta para ela
-- [ ] CI verde (`tests-ok`)
+- [ ] CI verde em todos os checks obrigatórios
 - [ ] Nenhuma dependência nova, ou o porquê está aqui
 - [ ] Nenhuma mídia de exercício nova ou acima de 180 px, e nada novo em `data/` ou `catalogue/media/`
 - [ ] Texto para o usuário simples, sem travessão
