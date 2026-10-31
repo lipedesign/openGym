@@ -1,0 +1,254 @@
+[
+ {
+  "region": "upperTrapezius",
+  "name": "Trapézio superior",
+  "group": "trapezius",
+  "watchGroup": "trapezius",
+  "new": false
+ },
+ {
+  "region": "trapezius",
+  "name": "Trapézio médio",
+  "group": "trapezius",
+  "watchGroup": "trapezius",
+  "new": false
+ },
+ {
+  "region": "lowerTrapezius",
+  "name": "Trapézio inferior",
+  "group": "trapezius",
+  "watchGroup": "trapezius",
+  "new": false
+ },
+ {
+  "region": "frontDeltoid",
+  "name": "Deltoide frontal",
+  "group": "deltoids",
+  "watchGroup": "deltoids",
+  "new": false
+ },
+ {
+  "region": "deltoids",
+  "name": "Deltoide lateral",
+  "group": "deltoids",
+  "watchGroup": "deltoids",
+  "new": false
+ },
+ {
+  "region": "rearDeltoid",
+  "name": "Deltoide posterior",
+  "group": "deltoids",
+  "watchGroup": "deltoids",
+  "new": false
+ },
+ {
+  "region": "rotatorCuff",
+  "name": "Manguito rotador",
+  "group": "deltoids",
+  "watchGroup": "deltoids",
+  "new": false
+ },
+ {
+  "region": "upperChest",
+  "name": "Peito alto",
+  "group": "chest",
+  "watchGroup": "chest",
+  "new": false
+ },
+ {
+  "region": "chest",
+  "name": "Peito médio",
+  "group": "chest",
+  "watchGroup": "chest",
+  "new": false
+ },
+ {
+  "region": "lowerChest",
+  "name": "Peito baixo",
+  "group": "chest",
+  "watchGroup": "chest",
+  "new": false
+ },
+ {
+  "region": "upperBack",
+  "name": "Dorsal",
+  "group": "upper-back",
+  "watchGroup": "upper-back",
+  "new": false
+ },
+ {
+  "region": "teresMajor",
+  "name": "Redondo maior",
+  "group": "upper-back",
+  "watchGroup": "upper-back",
+  "new": true
+ },
+ {
+  "region": "rhomboids",
+  "name": "Romboides",
+  "group": "upper-back",
+  "watchGroup": "upper-back",
+  "new": false
+ },
+ {
+  "region": "serratus",
+  "name": "Serrátil anterior",
+  "group": "serratus",
+  "watchGroup": "serratus",
+  "new": false
+ },
+ {
+  "region": "biceps",
+  "name": "Bíceps",
+  "group": "biceps",
+  "watchGroup": "biceps",
+  "new": false
+ },
+ {
+  "region": "brachialis",
+  "name": "Braquial",
+  "group": "biceps",
+  "watchGroup": "biceps",
+  "new": true
+ },
+ {
+  "region": "tricepsLongHead",
+  "name": "Tríceps, cabeça longa",
+  "group": "triceps",
+  "watchGroup": "triceps",
+  "new": true
+ },
+ {
+  "region": "triceps",
+  "name": "Tríceps, cabeças lateral e medial",
+  "group": "triceps",
+  "watchGroup": "triceps",
+  "new": false
+ },
+ {
+  "region": "forearm",
+  "name": "Antebraço",
+  "group": "forearm",
+  "watchGroup": "forearm",
+  "new": false
+ },
+ {
+  "region": "upperAbs",
+  "name": "Reto abdominal",
+  "group": "abs",
+  "watchGroup": "abs",
+  "new": false
+ },
+ {
+  "region": "lowerAbs",
+  "name": "Abdômen baixo",
+  "group": "abs",
+  "watchGroup": "abs",
+  "new": false
+ },
+ {
+  "region": "obliques",
+  "name": "Oblíquo externo",
+  "group": "obliques",
+  "watchGroup": "obliques",
+  "new": false
+ },
+ {
+  "region": "lowerBack",
+  "name": "Lombar",
+  "group": "lower-back",
+  "watchGroup": "lower-back",
+  "new": false
+ },
+ {
+  "region": "gluteal",
+  "name": "Glúteo máximo",
+  "group": "gluteal",
+  "watchGroup": "gluteal",
+  "new": false
+ },
+ {
+  "region": "gluteusMedius",
+  "name": "Glúteo médio",
+  "group": "gluteal",
+  "watchGroup": "gluteal",
+  "new": true
+ },
+ {
+  "region": "quadriceps",
+  "name": "Reto femoral",
+  "group": "quadriceps",
+  "watchGroup": "quadriceps",
+  "new": false
+ },
+ {
+  "region": "innerQuad",
+  "name": "Vasto medial",
+  "group": "quadriceps",
+  "watchGroup": "quadriceps",
+  "new": false
+ },
+ {
+  "region": "outerQuad",
+  "name": "Vasto lateral",
+  "group": "quadriceps",
+  "watchGroup": "quadriceps",
+  "new": false
+ },
+ {
+  "region": "hamstring",
+  "name": "Posterior de coxa",
+  "group": "hamstring",
+  "watchGroup": "hamstring",
+  "new": false
+ },
+ {
+  "region": "adductors",
+  "name": "Adutores",
+  "group": "adductors",
+  "watchGroup": "adductors",
+  "new": false
+ },
+ {
+  "region": "hipFlexors",
+  "name": "Flexores do quadril",
+  "group": "hip-flexors",
+  "watchGroup": "hip-flexors",
+  "new": false
+ },
+ {
+  "region": "calves",
+  "name": "Gastrocnêmio",
+  "group": "calves",
+  "watchGroup": "calves",
+  "new": false
+ },
+ {
+  "region": "soleus",
+  "name": "Sóleo",
+  "group": "calves",
+  "watchGroup": "calves",
+  "new": true
+ },
+ {
+  "region": "tibialis",
+  "name": "Tibial anterior",
+  "group": "tibialis",
+  "watchGroup": "tibialis",
+  "new": false
+ },
+ {
+  "region": "sternocleidomastoid",
+  "name": "Esternocleidomastóideo",
+  "group": "neck",
+  "watchGroup": null,
+  "new": true
+ },
+ {
+  "region": "neckBack",
+  "name": "Nuca (esplênios e levantador da escápula)",
+  "group": "neck",
+  "watchGroup": null,
+  "new": true
+ }
+]
