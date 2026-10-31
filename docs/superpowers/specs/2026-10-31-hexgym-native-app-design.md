@@ -408,15 +408,19 @@ que são dele. Nas palavras do founder: "no final do dia vai ser tudo feito por 
 
 **Onde o trabalho mora**
 
-- **Project "HexGym"** no GitHub, com um quadro de cinco colunas: A fazer, Pronto para começar, Em
-  andamento, Em revisão, Feito.
+- **Project "HexGym"** no GitHub ([quadro](https://github.com/users/lipedesign/projects/6), privado),
+  com cinco colunas: A fazer, Pronto para começar, Em andamento, Em revisão, Feito. Três visões: Fase
+  atual (o quadro do milestone em andamento), Todas as fases e Pede você (o que tem
+  `decisão do founder` ou `bloqueado`). Pôr uma issue em Feito fecha a issue.
 - **Um milestone por fase** (fases 0 a 6), mais um para o primeiro TestFlight externo, cada um com
   as issues da fase.
-- **Issues pequenas:** cada uma cabe num PR. O modelo de issue pede o que fazer, por quê, como saber
-  que está pronto e, quando houver, o que o founder vê.
-- **Etiquetas** de tipo (`feature`, `bug`, `docs`, `chore`, `sync`), de área (`motor`, `dados`,
+- **Issues pequenas:** cada uma cabe num PR. O modelo de tarefa pede o que fazer, por quê, como saber
+  que está pronto e, quando houver, o que o founder vê; o de bug pede os passos, onde aconteceu e a
+  versão.
+- **Etiquetas** de tipo (`feature`, `bug`, `docs`, `chore`, `upstream`), de área (`motor`, `dados`,
   `sync`, `watch`, `design-system`, `widgets`, `build`) e duas de estado: `decisão do founder` e
-  `bloqueado`.
+  `bloqueado`. `upstream` é o trabalho de trazer as mudanças do openGym original; `sync` é a
+  sincronização com um servidor openGym.
 - **O plano de cada fase** é escrito antes de a fase começar, em `docs/superpowers/plans/`, e vira
   as issues do milestone.
 
@@ -430,9 +434,15 @@ issue (Pronto para começar)
 fim da fase → release/<versão> → main, com tag → TestFlight
 ```
 
-- `main` e `develop` são protegidas: só recebem PR, com a CI verde, sem force push.
+- `develop` é a branch padrão do fork: os PRs já abrem contra ela, e o "Closes #<número>" fecha a
+  issue no merge (o GitHub só fecha a issue no merge na branch padrão).
+- `main` e `develop` são protegidas, também para a conta admin: só recebem PR, com o check
+  `tests-ok` verde, sem force push e sem apagar a branch.
 - O merge em `develop` é do agente, em squash, quando a CI passa e a revisão não deixa nada aberto.
-- PR que muda o visual leva prints, e um vídeo curto quando há movimento.
+  `release/*` e `hotfix/*` entram em `main` com merge normal e voltam para `develop` do mesmo jeito,
+  para as duas guardarem a mesma história. A branch é apagada depois do merge.
+- PR que muda o visual leva prints, e um vídeo curto quando há movimento, sem as imagens e animações
+  de exercício da Gym visual.
 
 **O que o agente faz sozinho**
 
@@ -458,7 +468,10 @@ O chamado aparece na conversa com o tech lead e como comentário na issue ou no 
 - Os workflows herdados do openGym que publicam ou atendem o projeto original (espelho do GitLab,
   imagens Docker, demo no GitHub Pages, CLA, auditoria semanal, checagem de release) ficam
   desligados no fork pelo próprio GitHub, sem apagar os arquivos, para o sync com o openGym não ter
-  conflito. Os testes (`test.yml`, `ios.yml`) continuam.
+  conflito. Os testes (`test.yml`, `ios.yml`) continuam, e o resumo deles, `tests-ok`, é o check
+  obrigatório.
+- Os modelos de issue e de PR do fork são do HexGym. No sync com o openGym, conflito neles fica com a
+  versão do HexGym.
 
 ## 10. O que fica com o tech lead
 
