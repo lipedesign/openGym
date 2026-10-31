@@ -1,0 +1,41 @@
+name: Tarefa
+description: Um pedaço de trabalho que cabe num PR.
+projects: ["lipedesign/6"]
+body:
+  - type: markdown
+    attributes:
+      value: Uma tarefa cabe num PR. Se ficou grande, quebre em mais de uma.
+  - type: textarea
+    id: o-que-fazer
+    attributes:
+      label: O que fazer
+      description: O resultado, em poucas linhas.
+    validations:
+      required: true
+  - type: textarea
+    id: por-que
+    attributes:
+      label: Por quê
+      description: O motivo, ou a seção do documento de design que pede isso.
+    validations:
+      required: true
+  - type: textarea
+    id: pronto
+    attributes:
+      label: Como saber que está pronto
+      description: Uma lista que dá para conferir.
+      placeholder: |
+        - [ ] O app abre no simulador do iPhone
+        - [ ] Os testes novos passam
+    validations:
+      required: true
+  - type: textarea
+    id: founder
+    attributes:
+      label: O que o founder vê
+      description: Quando houver, o que muda na tela, no Watch ou no quadro.
+  - type: textarea
+    id: notas
+    attributes:
+      label: Notas
+      description: Arquivos, links, riscos, o que ajudar quem for fazer.
