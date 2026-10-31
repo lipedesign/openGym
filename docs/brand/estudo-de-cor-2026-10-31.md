@@ -36,8 +36,8 @@ Data: 31/10/2026. Objetivo: escolher a cor principal do app nativo iOS, sem assu
 | Gentler Streak | laranja-coral ~#F67D48, mais verde ~#28C886 | A | claro (tem escuro) | gentil, ilustrado, acolhedor |
 | Bevel | sem accent único; uma cor por métrica | A/S | claro (tem escuro) | wellness, IA, limpo |
 | Athlytic | botões azul ~#0291FC; recovery verde ~#00E866 | A | escuro | dados, técnico |
-| Gymshark Training | pulado: a página do app dá 404 na App Store dos EUA, Reino Unido e Brasil | — | — | — |
-| openGym (hoje) | systemGreen #30D158; marca lima #A3E635 | — | #0C0E12 / #000 | — |
+| Gymshark Training | pulado: a página do app dá 404 na App Store dos EUA, Reino Unido e Brasil |  |  |  |
+| openGym (hoje) | systemGreen #30D158; marca lima #A3E635 |  | #0C0E12 / #000 |  |
 
 ## 2. O que está saturado
 

@@ -292,7 +292,8 @@ iPhone                                         Apple Watch
 
 ### 8.7 Projeto, alvos e IDs
 
-- Tudo do HexGym fica em `apple/`. A casca Capacitor do openGym (`frontend/ios`) não muda.
+- O app do HexGym fica em `apple/`; as ferramentas dele ficam em `scripts/` e os documentos em
+  `docs/`. A casca Capacitor do openGym (`frontend/ios`) não muda.
 - Um projeto Xcode comum, com pastas sincronizadas, sem gerador de projeto. Alvos: `HexGym` (iPhone),
   `HexGymWidgets` (widgets, Live Activity, controles), `HexGymWatch` e `HexGymWatchWidgets`.
 - Pacotes Swift locais: `HexEngine` (o motor e os complementos), `WatchCore` (iPhone e Watch),
@@ -342,15 +343,20 @@ iPhone                                         Apple Watch
   Apple. O Xcode 27 beta fica só para builds internos, se algum recurso do iOS 27 for usado.
 - Os builds de TestFlight saem desta máquina: arquivo, exportação e envio pela API do App Store
   Connect, com uma chave que o founder cria.
-- No GitHub Actions: a checagem do script do motor, os testes do motor e os `swift test` dos
-  pacotes. Se o runner não tiver o Xcode 27, o build do app é conferido aqui a cada PR.
+- No GitHub Actions, num workflow próprio do HexGym (seção 9.1): a checagem do script do motor, os
+  testes do motor e os `swift test` dos pacotes. Se o runner não tiver o Xcode 27, o build do app é
+  conferido aqui a cada PR.
 
 ### 8.11 Git e as atualizações do openGym
 
-- Git Flow no fork: `main` recebe as versões que vão para o TestFlight externo; `develop` integra;
-  `feature/*`, `release/*` e `hotfix/*` como de costume. PRs sempre para o fork.
-- De tempos em tempos, um PR `sync/opengym-<data>` traz o `upstream/main` para `develop`, gera de novo
-  o script do motor, roda todos os testes e compara as telas de treino do openGym (8.2).
+- Git Flow no fork: `develop` integra; `main` recebe uma versão no fim de cada fase, com tag e build
+  interno de TestFlight, e o TestFlight externo sai de uma dessas tags; `feature/*`, `release/*` e
+  `hotfix/*` como de costume (seção 9.1). PRs sempre para o fork.
+- De tempos em tempos, um PR `sync/opengym-<data>`, com a etiqueta `upstream`, traz o `upstream/main`
+  para `develop`, gera de novo o script do motor, roda todos os testes, compara as telas de treino do
+  openGym (8.2) e compara o WatchCore de `frontend/ios/App/WatchCore` com a cópia em `apple/` (8.5).
+- Esse PR entra com merge normal, nunca squash. Um squash deixaria os commits do openGym fora da
+  história de `develop`, e o sync seguinte voltaria a dar conflito no que já veio.
 
 ### 8.12 Convivência com o openGym
 
@@ -380,9 +386,9 @@ Decisões do tech lead depois da revisão do documento:
 
 ## 9. Fases
 
-Proposta do tech lead. Cada fase vira um milestone no GitHub, com issues e um quadro no GitHub
-Projects, e termina num PR para `develop` com prints, vídeo curto e um build interno de TestFlight.
-O plano detalhado de cada fase sai depois deste documento.
+Proposta do tech lead. Cada fase vira um milestone no GitHub, com as issues no Project HexGym (seção
+9.1), e termina numa versão: o PR de `release/<versão>` para `main`, com prints, vídeo curto e um
+build interno de TestFlight. O plano detalhado de cada fase sai depois deste documento.
 
 | Fase | Entrega | O founder vê |
 |---|---|---|
@@ -410,13 +416,14 @@ que são dele. Nas palavras do founder: "no final do dia vai ser tudo feito por 
 
 - **Project "HexGym"** no GitHub ([quadro](https://github.com/users/lipedesign/projects/6), privado),
   com cinco colunas: A fazer, Pronto para começar, Em andamento, Em revisão, Feito. Três visões: Fase
-  atual (o quadro do milestone em andamento), Todas as fases e Pede você (o que tem
-  `decisão do founder` ou `bloqueado`). Pôr uma issue em Feito fecha a issue.
+  atual (o quadro do milestone em andamento; o filtro troca quando a fase muda), Todas as fases e
+  Pede você (o que está aberto com `decisão do founder` ou `bloqueado`). Pôr uma issue em Feito fecha
+  a issue.
 - **Um milestone por fase** (fases 0 a 6), mais um para o primeiro TestFlight externo, cada um com
   as issues da fase.
 - **Issues pequenas:** cada uma cabe num PR. O modelo de tarefa pede o que fazer, por quê, como saber
-  que está pronto e, quando houver, o que o founder vê; o de bug pede os passos, onde aconteceu e a
-  versão.
+  que está pronto e, quando houver, o que o founder vê; o de bug pede os passos, onde aconteceu, o
+  aparelho com o sistema e a versão do app.
 - **Etiquetas** de tipo (`feature`, `bug`, `docs`, `chore`, `upstream`), de área (`motor`, `dados`,
   `sync`, `watch`, `design-system`, `widgets`, `build`) e duas de estado: `decisão do founder` e
   `bloqueado`. `upstream` é o trabalho de trazer as mudanças do openGym original; `sync` é a
@@ -431,16 +438,22 @@ issue (Pronto para começar)
   → branch feature/<número>-<nome>, a partir de develop
   → código e testes → PR para develop, com "Closes #<número>"
   → CI verde e revisão de um segundo agente → merge em develop → Feito
-fim da fase → release/<versão> → main, com tag → TestFlight
+fim da fase → release/<versão>, a partir de develop → build interno no TestFlight
+  → o founder vê e aprova → merge em main, com a tag v<versão> → PR de main para develop
 ```
 
 - `develop` é a branch padrão do fork: os PRs já abrem contra ela, e o "Closes #<número>" fecha a
   issue no merge (o GitHub só fecha a issue no merge na branch padrão).
-- `main` e `develop` são protegidas, também para a conta admin: só recebem PR, com o check
-  `tests-ok` verde, sem force push e sem apagar a branch.
-- O merge em `develop` é do agente, em squash, quando a CI passa e a revisão não deixa nada aberto.
-  `release/*` e `hotfix/*` entram em `main` com merge normal e voltam para `develop` do mesmo jeito,
-  para as duas guardarem a mesma história. A branch é apagada depois do merge.
+- `main` e `develop` são protegidas, também para a conta admin: só recebem PR, sem force push e sem
+  apagar a branch. Os checks obrigatórios são o `tests-ok` e, quando o workflow do HexGym nascer na
+  fase 0, o `hexgym-ok` (veja "Onde roda"). Enquanto as Actions do fork não estão ligadas (issue #3),
+  nenhum check roda, e o que garante um PR é a revisão do segundo agente.
+- O merge de uma feature em `develop` é do agente, em squash, quando a CI passa e a revisão não deixa
+  nada aberto.
+- Entram com merge normal, para guardar a história: o PR de sync com o openGym (seção 8.11) e as
+  versões. `release/*` sai de `develop` e `hotfix/*` sai de `main`; as duas entram em `main`, e um PR
+  de `main` para `develop` traz a versão de volta. A branch é apagada depois do merge; `main` e
+  `develop`, protegidas, ficam.
 - PR que muda o visual leva prints, e um vídeo curto quando há movimento, sem as imagens e animações
   de exercício da Gym visual.
 
@@ -468,10 +481,16 @@ O chamado aparece na conversa com o tech lead e como comentário na issue ou no 
 - Os workflows herdados do openGym que publicam ou atendem o projeto original (espelho do GitLab,
   imagens Docker, demo no GitHub Pages, CLA, auditoria semanal, checagem de release) ficam
   desligados no fork pelo próprio GitHub, sem apagar os arquivos, para o sync com o openGym não ter
-  conflito. Os testes (`test.yml`, `ios.yml`) continuam, e o resumo deles, `tests-ok`, é o check
-  obrigatório.
+  conflito.
+- Os testes do openGym continuam: o `test.yml`, cujo resumo, o job `tests-ok`, é check obrigatório,
+  e o `ios.yml`, que compila a casca do openGym quando um PR mexe nela. Os dois olham só o código do
+  openGym: num PR só do HexGym, o `tests-ok` fica verde sem rodar nada.
+- As checagens do HexGym (seção 8.10) ficam num workflow próprio, `.github/workflows/hexgym.yml`, que
+  o openGym não tem e por isso não dá conflito no sync. O resumo dele, o job `hexgym-ok`, também é
+  check obrigatório em `main` e `develop`. Ele nasce na fase 0, com o projeto Xcode (issue #9).
 - Os modelos de issue e de PR do fork são do HexGym. No sync com o openGym, conflito neles fica com a
-  versão do HexGym.
+  versão do HexGym: um modelo que o fork apagou e o openGym mudou volta como conflito, resolvido com
+  `git rm`, e um modelo novo do openGym também é apagado no sync.
 
 ## 10. O que fica com o tech lead
 
