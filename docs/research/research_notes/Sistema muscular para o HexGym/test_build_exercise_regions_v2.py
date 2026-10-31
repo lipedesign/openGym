@@ -3,6 +3,7 @@
 
 Lê só o texto do catálogo, como o gerador. Cada caso é um exercício real pelo id.
 """
+import json
 import unittest
 
 import build_exercise_regions as B
@@ -54,9 +55,10 @@ class V2Rules(unittest.TestCase):
         self.assertNotIn('gluteal', p)
 
     def test_squat_does_not_light_gluteus_medius(self):
-        for k, v in ROWS.items():
-            if v['name'] == 'barbell full squat' and 'variantOf' not in v:
-                self.assertNotIn('gluteusMedius', v['primary'] + v['secondary'])
+        rows = [v for v in ROWS.values() if v['name'] == 'barbell full squat' and 'variantOf' not in v]
+        self.assertTrue(rows)
+        for v in rows:
+            self.assertNotIn('gluteusMedius', v['primary'] + v['secondary'])
 
     def test_lat_pulldown_lights_teres_major(self):
         p, _ = regions('2330')                       # cable lat pulldown full range of motion
@@ -67,9 +69,10 @@ class V2Rules(unittest.TestCase):
         self.assertIn('rotatorCuff', B.G['deltoids'])
 
     def test_lateral_raise_does_not_light_rotator_cuff(self):
-        for k, v in ROWS.items():
-            if v['name'] == 'dumbbell lateral raise' and 'variantOf' not in v:
-                self.assertNotIn('rotatorCuff', v['primary'])
+        rows = [v for v in ROWS.values() if v['name'] == 'dumbbell lateral raise' and 'variantOf' not in v]
+        self.assertTrue(rows)
+        for v in rows:
+            self.assertNotIn('rotatorCuff', v['primary'])
 
     def test_neck_flexion_and_extension(self):
         self.assertEqual(regions('10780')[0], {'sternocleidomastoid'})      # lying neck flexion
@@ -77,11 +80,15 @@ class V2Rules(unittest.TestCase):
         self.assertEqual(regions('2283')[0], {'sternocleidomastoid', 'neckBack'})  # side flexion
 
     def test_every_region_is_named_and_mapped(self):
-        rows = B.write_regions_v2()
+        rows = B.regions_v2_rows()
         self.assertEqual(len(rows), 36)
         watch = {r['watchGroup'] for r in rows} - {None}
         self.assertEqual(len(watch), 18)
         self.assertEqual({r['region'] for r in rows if r['watchGroup'] is None}, {'sternocleidomastoid', 'neckBack'})
+
+    def test_regions_v2_json_is_current(self):
+        committed = json.loads((B.HERE / 'regions_v2.json').read_text(encoding='utf-8'))
+        self.assertEqual(committed, B.regions_v2_rows())
 
 
 if __name__ == '__main__':

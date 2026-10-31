@@ -307,6 +307,6 @@ Os mapas de recuperação dos apps comerciais ficam na faixa de 14 a 21 grupos, 
 [app1]: https://apps.apple.com/app/id6758854092
 [app2]: https://apps.apple.com/app/id6782176731
 [musclewiki]: https://musclewiki.com/
-[cat]: /Users/lipe/Developer/MyGym/catalogue/exercises
-[muscles]: /Users/lipe/Developer/MyGym/frontend/src/lib/muscles.js
-[bodypaths]: /Users/lipe/Developer/MyGym/frontend/src/lib/body-paths.js
+[cat]: ../../../../catalogue/exercises
+[muscles]: ../../../../frontend/src/lib/muscles.js
+[bodypaths]: ../../../../frontend/src/lib/body-paths.js

@@ -15,7 +15,7 @@ VB = {"male": {"front": (0.0, 95.0, 727.0, 1280.0), "back": (718.0, 95.0, 727.0,
 SUB = {"upperChest": "chest", "lowerChest": "chest", "innerQuad": "quadriceps", "outerQuad": "quadriceps",
        "hipFlexors": "hip-flexors", "upperAbs": "abs", "lowerAbs": "abs", "frontDeltoid": "deltoids",
        "rearDeltoid": "deltoids", "upperTrapezius": "trapezius", "lowerTrapezius": "trapezius",
-       "serratus": "serratus", "rotatorCuff": "upper-back", "rhomboids": "upper-back"}
+       "serratus": "serratus", "rotatorCuff": "deltoids", "rhomboids": "upper-back"}
 GROUP = {"upperBack": "upper-back", "lowerBack": "lower-back", "hipFlexors": "hip-flexors"}
 INERT = {"head", "hair", "neck", "hands", "feet", "knees", "ankles"}
 NUM = re.compile(r'[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?')

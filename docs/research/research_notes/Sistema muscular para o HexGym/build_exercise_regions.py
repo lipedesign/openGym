@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gera exercise_regions.json: para cada exercício do catálogo do openGym, as regiões do
-manequim 3D do HexGym (regiões do MuscleMap, 31 por lado) que acendem como primárias
-(violeta forte) e secundárias (violeta claro).
+manequim 3D do HexGym (regiões do MuscleMap, 29 pintadas por lado na v1) que acendem como
+primárias (violeta forte) e secundárias (violeta claro).
 
     python3 build_exercise_regions.py            escreve exercise_regions.json ao lado deste script
     python3 build_exercise_regions.py --report   também imprime as contagens usadas nas notas
@@ -245,10 +245,15 @@ def v2_name_rules(e, p, s):
     return p, s
 
 
-def write_regions_v2():
-    """regions_v2.json: cada região pintada, seu grupo no boneco e o grupo que o Watch mostra."""
-    rows = [{'region': r, 'name': V2_REGION_PT[r], 'group': g, 'watchGroup': None if g == 'neck' else g,
+def regions_v2_rows():
+    """Cada região pintada da v2, seu grupo no boneco e o grupo que o Watch mostra."""
+    return [{'region': r, 'name': V2_REGION_PT[r], 'group': g, 'watchGroup': None if g == 'neck' else g,
              'new': r in V2_NEW} for g, rr in V2_GROUP_REGIONS.items() for r in rr]
+
+
+def write_regions_v2():
+    """Escreve regions_v2.json com as linhas de regions_v2_rows()."""
+    rows = regions_v2_rows()
     path = HERE / 'regions_v2.json'
     path.write_text(json.dumps(rows, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     return rows

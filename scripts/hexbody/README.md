@@ -13,12 +13,13 @@ The exercise media licensed from Gym visual is never opened or used here.
 |---|---|
 | `blender/` | Blender scripts, run as `Blender -b <file.blend> -P <script> -- <args>` |
 | `musclemap/` | The MuscleMap figures (`male.json`, `male.svg`, `female.json`), the label table and the region scripts |
-| `body/` | Atlas images: renders, labelled plates, activation crops |
+| `body/` | Scripts for the atlas images (renders, labelled plates, activation crops), written to `work/atlas` |
 | `ref/`, `ref_f/` | The four views sent to Meshy multi-image to 3D, and the reference they were drawn from |
 | `work/` | Generated and heavy files, **not in git** |
 
 `musclemap/labels.json` is the one id table for both bodies (229 rows). Pieces drawn only on the female
-figure carry `"fig": "female"`. New rows are always appended, so ids never move.
+figure carry `"fig": "female"`. New rows are always appended, so ids never move. `labels_f.json` is the
+same table with the female figure's frame, written by `raster.py` for `project.py`.
 
 ## work/ (not in git)
 
@@ -36,7 +37,8 @@ figure carry `"fig": "female"`. New rows are always appended, so ids never move.
 `work/anim/squat.blend` is the squat scene from the animation test. Its skeleton (SMPL-H joint layout, from
 Meshy text to motion) is the one both bodies hang on.
 
-The files in `work/` are the reference versions. Keep a backup of the folder.
+The files in `work/` are the reference versions, and today they exist only on the machine that made
+them. Where the backup lives is issue #10 in the fork.
 
 ## Build order
 
@@ -107,8 +109,24 @@ To see the regions on the body:
 The activation names in `bodylook.py` (`supino`, `puxada` and so on) are render examples. The app's map
 from exercise to regions is built from the exercise catalogue, not here.
 
+## Inspection and history
+
+Not part of the build order:
+
+- `blender/inspect_glb.py`, `blender/export_verts.py` and `blender/ruler.py` were used while fitting the
+  bodies: what is inside a GLB, the vertices and normals as a `.npy`, and landmark heights read off a
+  ruler.
+- `blender/show_labels.py` is the v1 debug view; `show_labels_v2.py` replaces it.
+- `musclemap/labels_v1.json` is the v1 id table, kept for history. `labels.json` keeps its 203 rows at
+  the same ids; only the rotator cuff moved, from `upper-back` to `deltoids`.
+- `musclemap/fields.py` is the earlier way to draw the seams (distance fields per vertex). The renders
+  now use `seams.py`, which stores them per triangle corner.
+- `musclemap/male.svg` is the MuscleMap male figure as an SVG, for viewing. The scripts read `male.json`.
+
 ## What was checked (31 October 2026)
 
+- **Tools:** Blender 5.1.2, Python 3.13.11, numpy 2.5.3, scipy 1.18.1 and Pillow 12.3.0. "Vertex for
+  vertex" below holds for these versions.
 - **Female:** steps 5 to 7, run from this folder, reproduce `work/body_f` vertex for vertex.
 - **Male:** steps 5 and 7 reproduce it too, but its `mm_final.npy` was projected before step 3
   triangulated the mesh. Running steps 5 and 6 again now moves about 1.4% of the border vertices.
@@ -123,6 +141,7 @@ from exercise to regions is built from the exercise catalogue, not here.
   `male.json`, `male.svg` and `female.json` are its front and back figure paths. The licence text is in
   `musclemap/LICENSE-MuscleMap`.
 - **References:** `ref/referencia-corpo.jpg` is the reference Lipe supplied, and the four views in `ref/` are
-  cut from it. `ref_f/` was made from it with Meshy image to image.
+  cut from it. `ref_f/` was made from it with Meshy image to image. How the reference itself was made is
+  still to be written down (issue #10 in the fork).
 - **Meshy** also made both body meshes and the squat motion.
 - Everything else here was written for HexGym.
