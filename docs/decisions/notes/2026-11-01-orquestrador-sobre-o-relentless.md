@@ -44,6 +44,11 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - O `board.mjs next` retoma primeiro a issue em `state:review`, depois a em `state:in-progress`, e só
   então pega a pronta de menor número. Nunca devolve um épico. O `move` e o `refresh` do plano antigo
   saem.
+- O merge com `Closes #<n>` fecha a issue antes dos passos que vêm depois dele. Por isso o `next`
+  também retoma a issue fechada da fase que ainda não chegou a `state:done`, o `set-state done` vem
+  por último, e cada passo depois do merge ganha um comentário, para a retomada saber onde parou.
+  Uma decisão que um desses passos peça vai numa issue nova: numa fechada, o pedido some da visão
+  "Pede você", e a resposta não volta pelo `next`.
 - Mover um cartão à mão não muda o estado: na próxima volta, o quadro volta a seguir a etiqueta.
 
 ### As esperas pelo founder
@@ -90,11 +95,21 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   CI), o PR sem conflito (`mergeable` igual a `MERGEABLE`), os checks verdes depois da #3 e o squash
   à mão com `gh pr merge --squash --match-head-commit`. O `merge.default` continua `human`: quem faz
   o merge é o tech lead, como diz a seção 9.1.
+- Com o dry-run em 1, a mensagem diz o que falta: a linha `ADRs:` sem motivo volta ao implementador,
+  e um veredito velho ou sem o commit volta ao QA e à revisão. O `orchestrator.md` (linha 46) manda
+  pôr `human:pending` à mão nesse caso; aqui, ele só entra pelo `request-decision.sh`.
 - Os checks são lidos pelo nome, no `gh pr checks <pr> --json name,bucket`: o `tests-ok` e, depois
   da #9, o `hexgym-ok`, cada um com `pass`. O `wait-ci.sh` só olha a última execução da branch, e o
   `--required` só lista os checks que a proteção exige: sem nenhum, o `gh` sai com 1, o que
-  aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3). Check
-  pendente não vira espera em laço: o orquestrador avisa o Lipe e para, e a volta seguinte retoma.
+  aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3).
+- A espera pelos checks fica no primeiro plano e tem limite, como a do `wait_ci` do
+  `merge-if-ready.sh` (`orchestrator.md`, linha 48). O `board.mjs checks` lê os checks a cada 30 s
+  por até 8 minutos, abaixo dos 10 da ferramenta Bash, e o orquestrador o chama de novo enquanto a
+  saída for 3, até 12 vezes no mesmo commit (cerca de uma hora e meia, o que cobre os jobs do
+  macOS). Passado isso, o check travou: um pedido de decisão, com o estado de cada check e o link da
+  execução. CI pendente não é parada: esperar o Lipe pediria uma pessoa fora da lista fechada, e um
+  job preso na fila pararia a fase sem nenhum pedido. Check vermelho volta ao implementador com o
+  log; job cancelado ou com falha fora do código roda de novo uma vez (`gh run rerun --failed`).
 - Conflito com `develop`: o implementador traz o `origin/develop` para a branch com merge, sem
   rebase (reescrever histórico é parada), e o PR volta ao QA e à revisão.
 - O implementador roda o `wait-ci.sh` uma vez só e não fica esperando: com a saída 3 (pendente),
@@ -113,7 +128,9 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   da revisão e a Task. O `review` monta o pacote do relentless, com os mesmos títulos
   (`## Issue (acceptance criteria)`, `## PR body (for QA / dogfood section only)` e
   `## Diff (lockfiles excluded)`), mais a Task lida de `origin/develop`, sem os lockfiles e sem os
-  arquivos gerados de `reviewExclude`, e diz o que ficou de fora.
+  arquivos gerados de `reviewExclude`, e diz o que ficou de fora. O diff sai do `git` local
+  (`git diff origin/<base>...<commit do PR>`), e não do `gh pr diff`: a API do GitHub recusa o diff
+  de um PR grande (HTTP 406), e o PR do script do motor pode passar do limite.
 - Issue sem linha `Plano:` (um achado de revisão, por exemplo) usa o próprio corpo como requisito,
   com as Restrições globais e o Foco da revisão do plano da fase.
 - A revisão: o `relentless:reviewer` recebe só o caminho do pacote; a resposta inteira vai para
@@ -124,8 +141,10 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - O comentário do veredito só leva os achados com `changes_requested`, e só as linhas com a
   severidade entre colchetes (`[blocker]`, `[major]`, `[minor]` ou `[nit]`, o formato do
   `reviewer.md`). Por isso o `agent-out.md` é a fonte dos achados: com `changes_requested`, o
-  implementador recebe o arquivo inteiro; com `approved`, os pontos `[minor]` e `[nit]` vão num
-  comentário no PR, e o que fica para depois vira issue.
+  implementador recebe o arquivo inteiro; com `approved`, só as linhas `[minor]` e `[nit]` vão num
+  comentário no PR, sem os marcadores do começo do arquivo (o `merge-if-ready.sh` toma como veredito
+  o último comentário com `relentless:review-verdict`, e um sem o commit trava o merge), e o que fica
+  para depois vira issue.
 - Pelo Agent tool, a lista de comandos do `reviewer.md` não é aplicada. Na revisão da PR #30, o
   revisor rodou `sed`, `awk`, `node` e `git` sem bloqueio, e o `pretool-reviewer-isolation.sh` não
   reconhece o papel sem `RELENTLESS_ROLE` ou `CLAUDE_AGENT` no ambiente. O isolamento fica no
@@ -138,10 +157,14 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 
 - O `relentless:qa` roda `node scripts/hexgym/check.mjs <partes>` na worktree e usa o app de verdade
   quando a Task tem tela (simulador, com os prints e vídeos das Restrições globais).
+- O `qa.md` do relentless (linha 14) manda o QA abrir uma issue para cada lacuna. Aqui, o pedido diz
+  que ele só reporta: quem abre o acompanhamento é o orquestrador, no milestone da fase e como
+  sub-issue do épico, para o `board.mjs` e a issue da versão o verem.
 - O orquestrador publica o QA em duas partes. O comentário no PR sai do
   `fill-qa-section.sh --no-patch-body`. A seção `## QA / dogfood result` do corpo sai do
-  `context.mjs qa`, que troca a seção até o próximo título `## ` e passa a `###` os títulos `#` e
-  `##` do QA, para a troca seguinte não parar no meio dele. O `fill-qa-section.sh` não troca o
+  `context.mjs qa`, que troca a seção até o próximo título `## `, passa a `###` os títulos `#` e
+  `##` do QA que estão fora de bloco de código e fecha o bloco que o QA deixa aberto, para a troca
+  seguinte não parar no meio dele nem engolir o resto do corpo. O `fill-qa-section.sh` não troca o
   corpo aqui: ele usa `awk -v qa="$QA"`, e o `/usr/bin/awk` do macOS (versão 20200816) recusa um
   `-v` com quebra de linha (`newline in string`) e sai com 2, depois de o comentário já ter saído.
 - O modelo de PR passa a usar `##` em todos os títulos, para a troca parar no título seguinte.
@@ -184,7 +207,9 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   linha `Depende de:` da issue da versão, para a versão esperar por ele. O que pode esperar a fase
   seguinte vai para o milestone dela, com `orphan:ok`, até o épico daquela fase o adotar.
 - A Task da versão, a última do plano, tem a própria worktree (`release/<versão>`) e entra em `main`
-  com merge normal: o orquestrador segue os passos dela, sem o laço das outras.
+  com merge normal: o orquestrador segue os passos dela, sem o laço das outras. Quando o founder pede
+  mudanças no fim da fase, cada uma vira uma issue da fase, feita pelo laço em `develop`; a versão
+  espera por elas e recomeça do primeiro passo, com a `develop` trazida para a branch da release.
 - Os nomes e as opções desta nota são os do relentless 1.4.8. Depois de atualizar o plugin, reler o
   `agents/orchestrator.md` e os scripts que a skill chama.
 
@@ -220,3 +245,12 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - `pretool-reviewer-isolation.sh`, linhas 131 e 132: lê o papel de `RELENTLESS_ROLE` e de
   `CLAUDE_AGENT`. O `run-isolated-review.sh` exporta as duas nas linhas 141 e 142 e passa a lista de
   comandos ao `claude -p` (linha 147).
+- `merge-if-ready.sh`, linhas 531 a 557 (`wait_ci`): espera a CI no primeiro plano, até 36 vezes o
+  `wait-ci.sh --timeout-sec 20` com 10 s entre elas (uns 18 minutos), e desiste com 3.
+- `merge-if-ready.sh`, linhas 116 a 127: `ADRs: none` sem um motivo entre parênteses sai com 1; linha
+  302: o veredito é o último comentário com `relentless:review-verdict`.
+- `agents/orchestrator.md`, linha 46: quando o `merge-if-ready` sai com erro, pôr `human:pending` à
+  mão; linha 48: a espera da CI fica no primeiro plano, sem `run_in_background` nem `gh run watch`.
+- `agents/qa.md`, linha 14: o QA abre uma issue para cada lacuna.
+- `gh pr checks --json name,bucket` (gh 2.96): os `bucket` são `pass`, `fail`, `pending`, `skipping`
+  e `cancel`.
