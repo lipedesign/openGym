@@ -45,10 +45,11 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   então pega a pronta de menor número. Nunca devolve um épico. O `move` e o `refresh` do plano antigo
   saem.
 - O merge com `Closes #<n>` fecha a issue antes dos passos que vêm depois dele. Por isso o `next`
-  também retoma a issue fechada da fase que ainda não chegou a `state:done`, o `set-state done` vem
-  por último, e cada passo depois do merge ganha um comentário, para a retomada saber onde parou.
-  Uma decisão que um desses passos peça vai numa issue nova: numa fechada, o pedido some da visão
-  "Pede você", e a resposta não volta pelo `next`.
+  também retoma a issue fechada que ainda não chegou a `state:done`, de qualquer fase (a issue da
+  versão fecha o milestone antes do próprio `state:done`), o `set-state done` vem por último, e cada
+  passo depois do merge ganha um comentário, para a retomada saber onde parou. Uma decisão que um
+  desses passos peça vai numa issue nova: numa fechada, o pedido some da visão "Pede você", e a
+  resposta não volta pelo `next`.
 - Mover um cartão à mão não muda o estado: na próxima volta, o quadro volta a seguir a etiqueta.
 
 ### As esperas pelo founder
@@ -65,7 +66,10 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - Um passo do founder (um clique, uma instalação) também é um pedido, com a opção 1 "feito".
 - Uma issue que volta de um `/decide` não começa de novo. Com código, ela é retomada pelo estado do
   PR. Sem código, pelo último passo comentado: numa Tarefa sem código, o orquestrador comenta cada
-  passo feito na issue, com a prova, e o pedido de decisão conta como o passo em que sai.
+  passo feito na issue, com a prova, e o pedido de decisão que o passo manda fazer conta como esse
+  passo. Um pedido aberto porque um passo não deu certo (um check vermelho ou travado, um conflito,
+  a assinatura, um envio) não conta: depois do `/decide`, o passo roda de novo. Sem essa regra, a
+  retomada pularia o passo, e no fim da fase a versão sairia sem o merge.
 - Os passos que uma Task com código dá ao orquestrador antes do merge (o envio ao TestFlight da
   Task 13, a leitura do texto público pelo founder na Task 14) rodam logo antes do merge, depois de
   a revisão isolada aprovar o commit atual e de os portões abrirem, e cada comentário leva esse
@@ -110,6 +114,11 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   execução. CI pendente não é parada: esperar o Lipe pediria uma pessoa fora da lista fechada, e um
   job preso na fila pararia a fase sem nenhum pedido. Check vermelho volta ao implementador com o
   log; job cancelado ou com falha fora do código roda de novo uma vez (`gh run rerun --failed`).
+  Um nome que não aparece, sem nenhuma execução do workflow no commit (`gh run list --commit`), é um
+  PR aberto antes de o workflow existir em `develop` ou de as Actions rodarem por evento: nenhum
+  evento novo chega a ele sozinho. Fechar e reabrir o PR dispara o `pull_request` (o `reopened`)
+  com a base atual, sem mudar o commit nem o veredito. Uma falha do próprio `gh` sai com 4, e não
+  com 1, para não passar por check vermelho.
 - Conflito com `develop`: o implementador traz o `origin/develop` para a branch com merge, sem
   rebase (reescrever histórico é parada), e o PR volta ao QA e à revisão.
 - O implementador roda o `wait-ci.sh` uma vez só e não fica esperando: com a saída 3 (pendente),
@@ -142,9 +151,10 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   severidade entre colchetes (`[blocker]`, `[major]`, `[minor]` ou `[nit]`, o formato do
   `reviewer.md`). Por isso o `agent-out.md` é a fonte dos achados: com `changes_requested`, o
   implementador recebe o arquivo inteiro; com `approved`, só as linhas `[minor]` e `[nit]` vão num
-  comentário no PR, sem os marcadores do começo do arquivo (o `merge-if-ready.sh` toma como veredito
-  o último comentário com `relentless:review-verdict`, e um sem o commit trava o merge), e o que fica
-  para depois vira issue.
+  comentário no PR, sem os marcadores do começo do arquivo e antes do comentário do veredito (o
+  `merge-if-ready.sh` toma como veredito o último comentário em que o texto
+  `relentless:review-verdict` aparece, em qualquer parte do corpo, e um sem o commit trava o merge),
+  e o que fica para depois vira issue.
 - Pelo Agent tool, a lista de comandos do `reviewer.md` não é aplicada. Na revisão da PR #30, o
   revisor rodou `sed`, `awk`, `node` e `git` sem bloqueio, e o `pretool-reviewer-isolation.sh` não
   reconhece o papel sem `RELENTLESS_ROLE` ou `CLAUDE_AGENT` no ambiente. O isolamento fica no
@@ -248,9 +258,13 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - `merge-if-ready.sh`, linhas 531 a 557 (`wait_ci`): espera a CI no primeiro plano, até 36 vezes o
   `wait-ci.sh --timeout-sec 20` com 10 s entre elas (uns 18 minutos), e desiste com 3.
 - `merge-if-ready.sh`, linhas 116 a 127: `ADRs: none` sem um motivo entre parênteses sai com 1; linha
-  302: o veredito é o último comentário com `relentless:review-verdict`.
+  302: o veredito é o último comentário que contém o texto `relentless:review-verdict`, em qualquer
+  parte do corpo.
 - `agents/orchestrator.md`, linha 46: quando o `merge-if-ready` sai com erro, pôr `human:pending` à
   mão; linha 48: a espera da CI fica no primeiro plano, sem `run_in_background` nem `gh run watch`.
 - `agents/qa.md`, linha 14: o QA abre uma issue para cada lacuna.
 - `gh pr checks --json name,bucket` (gh 2.96): os `bucket` são `pass`, `fail`, `pending`, `skipping`
   e `cancel`.
+- O `test.yml` e o `hexgym.yml` da Task 11 ouvem `pull_request` sem `types`, o que inclui o
+  `reopened`. O merge de um workflow novo em `develop` não gera evento nos PRs já abertos, e o
+  `gh run list` (gh 2.96) aceita `--commit`.
