@@ -1,0 +1,5 @@
+# Paths (relative to repo root) copied into each Relentless worktree after `worktree-create.sh`.
+# Add local-only files the implementer needs (.env.local, etc.). Do not commit secrets.
+# .env.local
+# HexGym: leva a ativação do relentless para a worktree (o .claude/ do openGym fica fora do git).
+.claude/settings.json

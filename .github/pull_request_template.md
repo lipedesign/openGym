@@ -1,7 +1,10 @@
 <!-- Um PR, uma issue. O título diz o que muda. Squash em develop depois da CI verde e da revisão. -->
 <!-- Num PR sync/opengym-<data> (seção 9.1, etiqueta upstream), os itens de issue única e de catalogue/media não valem, porque ele traz o que mudou no openGym. Esse PR entra com merge normal, nunca squash. -->
+<!-- A linha ADRs aparece uma vez só, e o merge do relentless recusa o PR sem ela: os caminhos das decisões de docs/decisions/adr/ que o PR segue, ou none com o motivo entre parênteses, como em "none (só documentação)". -->
 
 Closes #
+
+ADRs: none ()
 
 ### O que muda
 <!-- Uma ou duas frases: o que e por quê. -->
