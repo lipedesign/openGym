@@ -85,7 +85,7 @@ docs/superpowers/.gitignore      deixa o git ver os planos (o openGym ignora doc
 | Task | Issue | O que entrega | Depende de | Quem faz |
 |---|---|---|---|---|
 | 1 | #15 | O agente orquestrador | | tech lead |
-| 2 | #3 | Workflows herdados desligados e `tests-ok` obrigatório | | tech lead |
+| 2 | #3 | Workflows herdados desligados e `tests-ok` obrigatório | | tech lead, depois do clique do founder na aba Actions |
 | 3 | #11 | Branches e etiquetas herdadas | 1 | orquestrador |
 | 4 | #16 | O motor sem React | 1 | orquestrador |
 | 5 | #17 | O script do motor | 4 | orquestrador |
@@ -352,11 +352,14 @@ git commit -m "Orquestrador do HexGym: o quadro, as checagens e os agentes"
 
 ### Task 2: Os workflows herdados e o check obrigatório
 
-**Issue:** #3. **Quem faz:** o tech lead. Sem código.
+**Issue:** #3. **Quem faz:** o tech lead, depois do clique do founder (passo 1). Sem código.
 
-- [x] **Step 1: Confirm the fork's Actions are on**
+- [ ] **Step 1: Confirm the fork's Actions run on events**
 
-`gh api repos/lipedesign/openGym/actions/permissions` deu `"enabled":true`, e os nove workflows apareceram como `active` (num fork ainda parado seriam `disabled_fork`), sem nenhuma execução. Feito em 31/10/2026.
+O `"enabled":true` de `gh api repos/lipedesign/openGym/actions/permissions` e os workflows como `active` não provam que eles rodam. Os nove apareceram às 23:48:32Z de 31/10, dois segundos depois do merge do #7 em `develop`: foi o merge que registrou os arquivos. Em 01/11/2026, a abertura do PR #28, um commit novo nele e um push numa branch `ci-*` não dispararam nada, e o `workflow_dispatch` do `test.yml` rodou e passou. Num fork, o GitHub só roda por evento depois que o dono clica em "I understand my workflows, go ahead and enable them", na aba Actions. O clique é do founder, e a #3 fica com a etiqueta `bloqueado` até ele.
+
+Run: depois do clique, um commit num PR aberto e `gh run list -R lipedesign/openGym --event pull_request --limit 1`; e `gh api repos/lipedesign/openGym/actions/workflows --jq '.workflows[] | "\(.state) \(.path)"'`
+Expected: uma execução do `Tests` com evento `pull_request`, e os sete do passo 2 ainda `disabled_manually`.
 
 - [x] **Step 2: Disable the seven inherited workflows**
 
@@ -364,7 +367,7 @@ git commit -m "Orquestrador do HexGym: o quadro, as checagens e os agentes"
 
 - [ ] **Step 3: See `tests-ok` pass on a pull request**
 
-Run: `gh pr checks <pr> -R lipedesign/openGym`, no PR deste plano.
+Run: `gh pr checks <pr> -R lipedesign/openGym`, no PR do passo 1, com a execução vinda do `pull_request` (a do `workflow_dispatch` não prova que o check chega sozinho).
 Expected: `tests-ok` com `pass`.
 
 - [ ] **Step 4: Require `tests-ok` on both branches**
