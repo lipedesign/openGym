@@ -117,8 +117,9 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   Um nome que não aparece, sem nenhuma execução do workflow no commit (`gh run list --commit`), é um
   PR aberto antes de o workflow existir em `develop` ou de as Actions rodarem por evento: nenhum
   evento novo chega a ele sozinho. Fechar e reabrir o PR dispara o `pull_request` (o `reopened`)
-  com a base atual, sem mudar o commit nem o veredito. Uma falha do próprio `gh` sai com 4, e não
-  com 1, para não passar por check vermelho.
+  com a base atual, sem mudar o commit nem o veredito. O PR de teste da #3 faz o mesmo quando volta
+  de um `/decide` ainda sem execução. Uma falha do próprio `gh` sai com 4, e não com 1, para não
+  passar por check vermelho.
 - Conflito com `develop`: o implementador traz o `origin/develop` para a branch com merge, sem
   rebase (reescrever histórico é parada), e o PR volta ao QA e à revisão.
 - O implementador roda o `wait-ci.sh` uma vez só e não fica esperando: com a saída 3 (pendente),
@@ -201,7 +202,8 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - Os formulários Tarefa e Bug ganham `state:todo`. Os três do relentless ficam.
 - O milestone de cada fase ganha a seção `## Outcome`, e a fase ganha um épico com todas as issues
   dela como sub-issues. A fase 0 recebe os dois na Tarefa 1; as outras, quando o plano delas for
-  escrito.
+  escrito. Antes de pegar issue, o orquestrador confere a fase: sem épico, faz esse começo, e, sem
+  o plano dela, avisa o Lipe e para.
 - No `.relentless/config.json`, `checks.test` passa a ser `node scripts/hexgym/check.mjs` e
   `checks.install`, `npm ci && npm ci --prefix frontend`.
 
@@ -220,12 +222,15 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   com merge normal: o orquestrador segue os passos dela, sem o laço das outras. Quando o founder pede
   mudanças no fim da fase, cada uma vira uma issue da fase, feita pelo laço em `develop`; a versão
   espera por elas e recomeça do primeiro passo, com a `develop` trazida para a branch da release.
+  Nos merges dela, um check vermelho com a causa no código segue o mesmo caminho, e no PR de volta
+  para `develop` só esse merge se refaz, porque a versão já saiu. O que pode pedir uma decisão no
+  fechamento roda antes de fechar a issue da versão, e um pedido depois disso sai com ela reaberta.
 - Os nomes e as opções desta nota são os do relentless 1.4.8. Depois de atualizar o plugin, reler o
   `agents/orchestrator.md` e os scripts que a skill chama.
 
 ## Evidência
 
-- `run-isolated-review.sh`, linhas 90 a 98: com `--from-output`, copia o arquivo para
+- `run-isolated-review.sh`, linhas 91 a 99: com `--from-output`, copia o arquivo para
   `.relentless/review/<pr>/reviewer-out.md` e aplica o veredito, sem chamar outro `claude`.
 - `apply-review-verdict.sh`: o comentário do veredito leva o commit e, só com `changes_requested`,
   as linhas com `[blocker|major|minor|nit]` (`collect_findings`); as etiquetas só mudam depois dele.
