@@ -1,0 +1,3 @@
+# O .gitignore da raiz (do openGym) ignora docs/superpowers/plans/.
+# Os planos do HexGym ficam no git, então a pasta volta aqui.
+!/plans/
