@@ -33,7 +33,7 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   quem faz o merge confere no próprio PR os checks obrigatórios (`tests-ok` e, com a #9,
   `hexgym-ok`), porque o `wait-ci.sh` aceita a última execução verde de qualquer workflow.
 - **Sem `merge:auto` por enquanto.** O 1.4.8 não lê o `allow_issue_override`, então a etiqueta
-  `merge:auto` numa issue vale sempre. Ela só entra depois da #3, quando o relentless souber fazer
+  `merge:auto` numa issue vale sempre. Ela só entra depois da #3 e quando o relentless souber fazer
   squash.
 - **Merge normal, nunca squash:** `release/*` e `hotfix/*` em `main`, o PR de `main` para `develop` e
   o sync `sync/opengym-<data>` (seção 8.11).
@@ -45,7 +45,7 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   `upstream`), as de espera (`human:pending` com `decisão do founder`, `state:blocked` com
   `bloqueado`), os modelos de issue do relentless com os nossos e o modelo de PR com a seção
   `## QA / dogfood result`, que o `fill-qa-section.sh` preenche. Ela também muda a Task 3 (#11), que
-  apaga seis etiquetas padrão que o relentless usa e confere uma lista exata de 15.
+  apaga seis etiquetas padrão que o bootstrap do relentless recria e confere uma lista exata de 15.
 - **Nenhuma onda do relentless antes da revisão da #15.** Os milestones ainda não têm a seção Outcome
   nem os épicos, e o quadro do Project 6 não acompanha as etiquetas `state:*`.
 - **Título do PR** em português, simples, dizendo o que muda, porque vira o commit do squash. O
@@ -63,10 +63,12 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   - volta a cor e a descrição das 26 etiquetas dele (a `bug` perde a descrição em português) e
     recria as seis etiquetas padrão do GitHub que a Task 3 (#11) apaga.
 
-  Depois dele, volte os arquivos com `git restore`, a descrição "Tipo: algo não funciona como deveria"
-  com `gh label edit`, e apague o `relentless-ci.yml`.
+  Depois dele, volte os arquivos com `git restore` e a descrição "Tipo: algo não funciona como
+  deveria" com `gh label edit`, apague o `relentless-ci.yml` e, se a #11 já tiver rodado, apague de
+  novo as seis etiquetas padrão.
 - Os ganchos de git valem no checkout cujo branch já traz `.relentless/githooks`: a `develop` e as
-  features a partir deste PR, e a `main` só depois da primeira versão. Eles só recusam a `main`. A
+  features a partir deste PR, e a `main` só depois da primeira versão. Eles só guardam a `main` e
+  recusam push forçado em qualquer branch. A
   `develop` e a `main` ficam guardadas também pela proteção do GitHub (PR obrigatório, também para
   admin, sem push forçado e sem apagar).
 - O gancho `protect-main` do Claude Code barra qualquer push feito com a `main` em uso, até o de tag.
