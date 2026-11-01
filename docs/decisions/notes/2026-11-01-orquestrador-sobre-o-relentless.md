@@ -102,11 +102,12 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - Com o dry-run em 1, a mensagem diz o que falta: a linha `ADRs:` sem motivo volta ao implementador,
   e um veredito velho ou sem o commit volta ao QA e à revisão. O `orchestrator.md` (linha 46) manda
   pôr `human:pending` à mão nesse caso; aqui, ele só entra pelo `request-decision.sh`.
-- Os checks são lidos pelo nome, no `gh pr checks <pr> --json name,bucket`: o `tests-ok` e, depois
-  da #9, o `hexgym-ok`, cada um com `pass`. O `wait-ci.sh` só olha a última execução da branch, e o
-  `--required` só lista os checks que a proteção exige: sem nenhum, o `gh` sai com 1, o que
-  aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3). Um
-  pedido por falha no teste da #3 repete as duas opções da proteção, e vale a última resposta.
+- Os checks são lidos pelo nome, no `gh pr checks <pr> --json name,bucket,startedAt`: o `tests-ok`
+  e, depois da #9, o `hexgym-ok`, cada um com `pass`. O `wait-ci.sh` só olha a última execução da
+  branch, e o `--required` só lista os checks que a proteção exige: sem nenhum, o `gh` sai com 1, o
+  que aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3). Um
+  pedido por falha no teste da #3 repete as duas opções da proteção, e vale a última resposta a um
+  pedido com elas: a de outro pedido da #3, como o de um check travado, não muda a proteção.
 - A espera pelos checks fica no primeiro plano e tem limite, como a do `wait_ci` do
   `merge-if-ready.sh` (`orchestrator.md`, linha 48). O `board.mjs checks` lê os checks a cada 30 s
   por até 8 minutos, abaixo dos 10 da ferramenta Bash, e o orquestrador o chama de novo enquanto a
@@ -115,8 +116,10 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   execução. CI pendente não é parada: esperar o Lipe pediria uma pessoa fora da lista fechada, e um
   job preso na fila pararia a fase sem nenhum pedido. Check vermelho volta ao implementador com o
   log; job cancelado ou com falha fora do código roda de novo uma vez (`gh run rerun --failed`).
-  Depois disso, ou de um PR reaberto num commit com check vermelho, um `fail` só vale com a
-  execução nova terminada, porque a primeira leitura pode trazer o check velho.
+  Depois disso, ou de um PR reaberto, a lista pode trazer ainda o check velho até o job novo
+  começar, e o `checks` sairia com 1 sem esperar. Por isso, o comentário que diz o que se fez leva
+  o instante de logo antes, e o `checks` seguinte o recebe em `--since`: um check mais velho conta
+  como ausente, e a espera segue com o limite de sempre.
   Um nome que não aparece, sem nenhuma execução do workflow no commit (`gh run list --commit`), é um
   PR aberto antes de o workflow existir em `develop` ou de as Actions rodarem por evento: nenhum
   evento novo chega a ele sozinho. Fechar e reabrir o PR dispara o `pull_request` (o `reopened`)
@@ -271,8 +274,8 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - `agents/orchestrator.md`, linha 46: quando o `merge-if-ready` sai com erro, pôr `human:pending` à
   mão; linha 48: a espera da CI fica no primeiro plano, sem `run_in_background` nem `gh run watch`.
 - `agents/qa.md`, linha 14: o QA abre uma issue para cada lacuna.
-- `gh pr checks --json name,bucket` (gh 2.96): os `bucket` são `pass`, `fail`, `pending`, `skipping`
-  e `cancel`.
+- `gh pr checks --json` (gh 2.96): os `bucket` são `pass`, `fail`, `pending`, `skipping` e
+  `cancel`, e o `startedAt` está entre os campos.
 - O `test.yml` e o `hexgym.yml` da Task 11 ouvem `pull_request` sem `types`, o que inclui o
   `reopened`. O merge de um workflow novo em `develop` não gera evento nos PRs já abertos, e o
   `gh run list` (gh 2.96) aceita `--commit`.
