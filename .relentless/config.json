@@ -1,0 +1,30 @@
+{
+  "decider": {
+    "name": "Lipe",
+    "github": "lipedesign"
+  },
+  "workers": {
+    "default": {
+      "github": "lipedesign"
+    }
+  },
+  "merge": {
+    "default": "human",
+    "allow_issue_override": true
+  },
+  "rulesets": {
+    "apply": false
+  },
+  "milestones": {
+    "require_outcome_section": true
+  },
+  "stack": "node",
+  "package_manager": "npm",
+  "checks": {
+    "install": "npm ci",
+    "lint": "",
+    "typecheck": "",
+    "test": "",
+    "build": ""
+  }
+}
