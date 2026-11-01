@@ -167,6 +167,9 @@ Três camadas (a divisão dos exemplos é proposta do tech lead; o founder ajust
 - Cada fase termina num pull request no fork, com prints e um vídeo curto, e num build interno de
   TestFlight para o founder testar nos aparelhos dele.
 - O tech lead abre os PRs e faz os merges. O founder entra nas decisões de produto e de visual.
+- As decisões que são dele chegam como um pedido de decisão na issue, com as opções numeradas e a
+  recomendação, e aparecem na visão "Pede você" do quadro. Ele responde numa sessão do Claude Code
+  neste projeto com `/decide <issue> <opção>`, e pode juntar uma nota.
 
 ## 7. Recursos nativos
 
@@ -412,44 +415,57 @@ Todo o trabalho passa pelo GitHub do fork (`lipedesign/openGym`), num caminho s�
 agentes de IA com o tech lead orquestrando. O founder acompanha pelo quadro e entra nas decisões
 que são dele. Nas palavras do founder: "no final do dia vai ser tudo feito por AI".
 
+A base é o relentless, um plugin do Claude Code ativado só neste projeto, com os agentes
+(implementador, QA, revisor isolado, documentador) e as regras de cada passo. Onde ele e este
+documento divergem, valem as decisões em `docs/decisions/`: o Git Flow abaixo, o squash nas
+features e a Task do plano como critério de aceite.
+
 **Onde o trabalho mora**
 
 - **Project "HexGym"** no GitHub ([quadro](https://github.com/users/lipedesign/projects/6), privado),
   com cinco colunas: A fazer, Pronto para começar, Em andamento, Em revisão, Feito. Três visões: Fase
   atual (o quadro do milestone em andamento; o filtro troca quando a fase muda), Todas as fases e
-  Pede você (o que está aberto com `decisão do founder` ou `bloqueado`). Pôr uma issue em Feito fecha
-  a issue.
+  Pede você (o que está aberto com `human:pending` ou `state:blocked`). As colunas seguem as
+  etiquetas `state:*` das issues: o agente troca a etiqueta, e o quadro só espelha. Um cartão movido à
+  mão volta para a coluna da etiqueta na rodada seguinte; a exceção é Feito, porque pôr uma issue em
+  Feito fecha a issue.
 - **Um milestone por fase** (fases 0 a 6), mais um para o primeiro TestFlight externo, cada um com
   as issues da fase.
 - **Issues pequenas:** cada uma cabe num PR. O modelo de tarefa pede o que fazer, por quê, como saber
   que está pronto e, quando houver, o que o founder vê; o de bug pede os passos, onde aconteceu, o
   aparelho com o sistema e a versão do app.
-- **Etiquetas** de tipo (`feature`, `bug`, `docs`, `chore`, `upstream`), de área (`motor`, `dados`,
-  `sync`, `watch`, `design-system`, `widgets`, `build`, `acessibilidade`) e duas de estado:
-  `decisão do founder` e `bloqueado`. `upstream` é o trabalho de trazer as mudanças do openGym
-  original; `sync` é a sincronização com um servidor openGym.
+- **Etiquetas** de tipo (`enhancement`, `bug`, `documentation`, `investigation` e `epic`, do
+  relentless, mais `chore` e `upstream`), de área (`motor`, `dados`, `sync`, `watch`,
+  `design-system`, `widgets`, `build`, `acessibilidade`) e de estado, do relentless: uma só entre
+  `state:todo`, `state:in-progress`, `state:review`, `state:done` e `state:blocked`, mais
+  `human:pending` enquanto a issue espera o founder. `upstream` é o trabalho de trazer as mudanças
+  do openGym original; `sync` é a sincronização com um servidor openGym.
 - **O plano de cada fase** é escrito antes de a fase começar, em `docs/superpowers/plans/`, e vira
-  as issues do milestone.
+  as issues do milestone: cada Task, uma issue, sub-issue do épico da fase. O milestone ganha a seção
+  Outcome, e o critério de aceite de cada issue é a Task dela no plano.
 
 **O caminho de uma issue**
 
 ```
-issue (Pronto para começar)
-  → branch feature/<número>-<nome>, a partir de develop
+issue (state:todo, Pronto para começar)
+  → worktree e branch feature/<número>-<nome>, a partir de develop
   → código e testes → PR para develop, com "Closes #<número>"
-  → CI verde e revisão de um segundo agente → merge em develop → Feito
+  → QA (checagens e o app rodando) → revisão isolada de outro agente
+  → CI verde → merge em develop (squash) → state:done, Feito
 fim da fase → release/<versão>, a partir de develop → build interno no TestFlight
-  → o founder vê e aprova → merge em main, com a tag v<versão> → PR de main para develop
+  → o founder vê e aprova (/decide) → merge em main, com a tag v<versão> → PR de main para develop
 ```
 
 - `develop` é a branch padrão do fork: os PRs já abrem contra ela, e o "Closes #<número>" fecha a
   issue no merge (o GitHub só fecha a issue no merge na branch padrão).
 - `main` e `develop` são protegidas, também para a conta admin: só recebem PR, sem force push e sem
   apagar a branch. Os checks obrigatórios são o `tests-ok` e, quando o workflow do HexGym nascer na
-  fase 0, o `hexgym-ok` (veja "Onde roda"). Enquanto as Actions do fork não estão ligadas (issue #3),
-  nenhum check roda, e o que garante um PR é a revisão do segundo agente.
-- O merge de uma feature em `develop` é do agente, em squash, quando a CI passa e a revisão não deixa
-  nada aberto.
+  fase 0, o `hexgym-ok` (veja "Onde roda"). Torná-los obrigatórios muda a proteção, uma parada do
+  relentless: o founder dá o ok no pedido da issue #3, junto com o clique que liga as Actions do
+  fork. Até lá, nenhum check roda, e o que garante um PR é a revisão isolada. Depois da #3, com ou
+  sem a proteção, o agente confere os checks pelo nome antes de cada merge.
+- O merge de uma feature em `develop` é do agente, em squash, quando a CI passa e a revisão isolada
+  aprova o último commit do PR (`review:approved`).
 - Entram com merge normal, para guardar a história: o PR de sync com o openGym (seção 8.11) e as
   versões. `release/*` sai de `develop` e `hotfix/*` sai de `main`; as duas entram em `main`, e um PR
   de `main` para `develop` traz a versão de volta. A branch é apagada depois do merge; `main` e
@@ -459,18 +475,27 @@ fim da fase → release/<versão>, a partir de develop → build interno no Test
 
 **O que o agente faz sozinho**
 
-Pega a próxima issue pronta do milestone atual, cria a branch, escreve o código e os testes, roda as
-checagens, abre o PR, pede a revisão de outro agente, corrige o que ela apontar, faz o merge em
-`develop`, move o cartão e fecha a issue. Abre issues novas quando acha um problema e decide a ordem
+Pega a próxima issue pronta do milestone atual, cria a worktree e a branch, escreve o código e os
+testes, roda as checagens, abre o PR, faz o QA, pede a revisão isolada de outro agente, corrige o que
+ela apontar, faz o merge em `develop`, troca a etiqueta de estado (o quadro acompanha) e fecha a
+issue. Abre issues novas quando acha um problema, como sub-issues do épico da fase, e decide a ordem
 do trabalho dentro da fase (seção 10).
 
 **Quando ele para e chama o founder**
 
-- decisão de visual ou de produto: a issue ganha a etiqueta `decisão do founder`, e o agente segue em
-  outra issue até a resposta;
-- tudo que envolva dinheiro, contas, loja ou falar com o Duarte;
+- decisão de visual ou de produto;
+- tudo que envolva dinheiro, contas, loja ou falar com o Duarte, e o primeiro envio ao TestFlight;
+- o texto público do projeto (README e afins);
+- as paradas do relentless: um ADR, segredos e credenciais, a proteção das branches, apagar branch
+  ou reescrever histórico, e publicar num registro;
 - o fim de cada fase, com o PR, os prints, o vídeo curto e o build interno de TestFlight;
 - quando trava de verdade, depois de tentar os caminhos que tem.
+
+Cada parada é um pedido de decisão na issue: a pergunta, o contexto, as opções numeradas e a
+recomendação. A issue ganha `human:pending` e `state:blocked`, aparece em "Pede você", e o agente
+segue em outra issue. O founder responde com `/decide <issue> <opção>`, com uma nota se quiser; um
+passo que é só dele (um clique, uma instalação) vem com a opção "feito". O agente nunca responde por
+ele.
 
 O chamado aparece na conversa com o tech lead e como comentário na issue ou no PR.
 
@@ -486,8 +511,9 @@ O chamado aparece na conversa com o tech lead e como comentário na issue ou no 
   e o `ios.yml`, que compila a casca do openGym quando um PR mexe nela. Os dois olham só o código do
   openGym: num PR só do HexGym, o `tests-ok` fica verde sem rodar nada.
 - As checagens do HexGym (seção 8.10) ficam num workflow próprio, `.github/workflows/hexgym.yml`, que
-  o openGym não tem e por isso não dá conflito no sync. O resumo dele, o job `hexgym-ok`, também é
-  check obrigatório em `main` e `develop`. Ele nasce na fase 0, com o projeto Xcode (issue #9).
+  o openGym não tem e por isso não dá conflito no sync. O resumo dele, o job `hexgym-ok`, também vira
+  check obrigatório em `main` e `develop`, com o mesmo ok do founder. Ele nasce na fase 0, com o
+  projeto Xcode (issue #9).
 - Os modelos de issue e de PR do fork são do HexGym. No sync com o openGym, conflito neles fica com a
   versão do HexGym: um modelo que o fork apagou e o openGym mudou volta como conflito, resolvido com
   `git rm`, e um modelo novo do openGym também é apagado no sync.
