@@ -24,8 +24,11 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   `claude plugin list --json`, campo `installPath`) e diz onde o HexGym muda.
 - Os agentes são os do relentless, chamados com o modelo escrito: `relentless:implementer`,
   `relentless:qa` e `relentless:reviewer`. O `relentless:documenter` escreve o resumo no fim de cada
-  fase. Os planos continuam saindo do superpowers:writing-plans, aprovados pelo founder; o
-  `relentless:planner` não escreve plano de fase.
+  fase, só no arquivo que o `write-status-snapshot.sh --out` cria em
+  `docs/status/m<n>-<nome>-status.md` (sem o `--out`, o nome sai do título do milestone), e sem
+  alinhar o README nem abrir issues na branch da release. Os planos continuam saindo do
+  superpowers:writing-plans, aprovados pelo founder; o `relentless:planner` não escreve plano de
+  fase.
 - Os agentes `hexgym-implementador` e `hexgym-revisor` não são criados.
 - Uma issue de cada vez.
 
@@ -57,9 +60,12 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - Um passo do founder (um clique, uma instalação) também é um pedido, com a opção 1 "feito".
 - Uma issue que volta de um `/decide` não começa de novo. Com código, ela é retomada pelo estado do
   PR. Sem código, pelo último passo comentado: numa Tarefa sem código, o orquestrador comenta cada
-  passo feito na issue, com a prova, e o pedido de decisão conta como o passo em que sai. Os passos
-  que uma Task com código dá ao orquestrador antes do merge (o envio ao TestFlight da Task 13, por
-  exemplo) seguem a mesma regra.
+  passo feito na issue, com a prova, e o pedido de decisão conta como o passo em que sai.
+- Os passos que uma Task com código dá ao orquestrador antes do merge (o envio ao TestFlight da
+  Task 13, a leitura do texto público pelo founder na Task 14) rodam logo antes do merge, depois de
+  a revisão isolada aprovar o commit atual e de os portões abrirem, e cada comentário leva esse
+  commit. Assim o founder vê, e o TestFlight recebe, o que vai entrar. Um commit novo depois deles
+  volta ao QA e à revisão e refaz esses passos.
 - A resposta do founder entra no critério de aceite: o `context.mjs` põe na brief e no pacote de
   revisão os pedidos e as respostas da issue (os comentários com `relentless:decision-request` e com
   `relentless:decision option=`).
@@ -80,11 +86,20 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   diz `origin/main` e `--type feat`:
   `worktree-create.sh --repo lipedesign/openGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
 - O merge segue a nota anterior: `merge-if-ready.sh --dry-run` saindo com 0 (uma linha `ADRs:`,
-  `review:approved` e o veredito no commit atual), os checks obrigatórios verdes depois da #3, e o
-  squash à mão com `gh pr merge --squash --match-head-commit`. O `merge.default` continua `human`:
-  quem faz o merge é o tech lead, como diz a seção 9.1.
-- Até a #3, o `wait-ci.sh` sai sempre com 3, porque nenhum check roda nos PRs. O implementador não
-  fica esperando: roda as checagens locais e reporta.
+  `review:approved` e o veredito no commit atual; no modo `human`, o dry-run sai antes de olhar a
+  CI), o PR sem conflito (`mergeable` igual a `MERGEABLE`), os checks verdes depois da #3 e o squash
+  à mão com `gh pr merge --squash --match-head-commit`. O `merge.default` continua `human`: quem faz
+  o merge é o tech lead, como diz a seção 9.1.
+- Os checks são lidos pelo nome, no `gh pr checks <pr> --json name,bucket`: o `tests-ok` e, depois
+  da #9, o `hexgym-ok`, cada um com `pass`. O `wait-ci.sh` só olha a última execução da branch, e o
+  `--required` só lista os checks que a proteção exige: sem nenhum, o `gh` sai com 1, o que
+  aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3). Check
+  pendente não vira espera em laço: o orquestrador avisa o Lipe e para, e a volta seguinte retoma.
+- Conflito com `develop`: o implementador traz o `origin/develop` para a branch com merge, sem
+  rebase (reescrever histórico é parada), e o PR volta ao QA e à revisão.
+- O implementador roda o `wait-ci.sh` uma vez só e não fica esperando: com a saída 3 (pendente),
+  roda as checagens locais e reporta, e quem confere a CI é o portão do merge. Até a #3, a saída é
+  sempre 3, porque nenhum check roda nos PRs.
 - Os commits usam a mensagem que a Task pede, sem o prefixo de conventional commits. O
   `check-commit-msg.sh` não vale aqui: o squash leva só o título do PR.
 - O repositório apaga a branch do PR no merge. O `worktree-cleanup.sh` tira a worktree e deixa a
@@ -95,16 +110,27 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - O `build-review-bundle.sh` usa o corpo da issue como critério de aceite e manda o diff inteiro. No
   HexGym, o requisito é a Task do plano, e o diff do motor traz um script gerado de uns 2 MB.
 - O `scripts/hexgym/context.mjs` monta os dois textos. O `brief` junta as Restrições globais, o Foco
-  da revisão e a Task. O `review` monta o pacote do relentless, com os mesmos títulos, mais a Task
-  lida de `origin/develop`, sem os lockfiles e sem os arquivos gerados de `reviewExclude`, e diz o que
-  ficou de fora.
+  da revisão e a Task. O `review` monta o pacote do relentless, com os mesmos títulos
+  (`## Issue (acceptance criteria)`, `## PR body (for QA / dogfood section only)` e
+  `## Diff (lockfiles excluded)`), mais a Task lida de `origin/develop`, sem os lockfiles e sem os
+  arquivos gerados de `reviewExclude`, e diz o que ficou de fora.
 - Issue sem linha `Plano:` (um achado de revisão, por exemplo) usa o próprio corpo como requisito,
   com as Restrições globais e o Foco da revisão do plano da fase.
 - A revisão: o `relentless:reviewer` recebe só o caminho do pacote; a resposta inteira vai para
   `.relentless/review/<pr>/agent-out.md`; e o `run-isolated-review.sh --from-output` lê a última
-  linha (`Verdict: approved` ou `Verdict: changes_requested`), comenta os achados no PR e troca as
-  etiquetas. O arquivo não pode ser o `reviewer-out.md` da mesma pasta: o script copia a saída para
-  lá, e o `cp` de um arquivo nele mesmo falha.
+  linha (`Verdict: approved` ou `Verdict: changes_requested`), comenta o veredito no PR, com o
+  commit, e troca as etiquetas. O arquivo não pode ser o `reviewer-out.md` da mesma pasta: o script
+  copia a saída para lá, e o `cp` de um arquivo nele mesmo falha.
+- O comentário do veredito só leva os achados com `changes_requested`, e só as linhas com a
+  severidade entre colchetes (`[blocker]`, `[major]`, `[minor]` ou `[nit]`, o formato do
+  `reviewer.md`). Por isso o `agent-out.md` é a fonte dos achados: com `changes_requested`, o
+  implementador recebe o arquivo inteiro; com `approved`, os pontos `[minor]` e `[nit]` vão num
+  comentário no PR, e o que fica para depois vira issue.
+- Pelo Agent tool, a lista de comandos do `reviewer.md` não é aplicada. Na revisão da PR #30, o
+  revisor rodou `sed`, `awk`, `node` e `git` sem bloqueio, e o `pretool-reviewer-isolation.sh` não
+  reconhece o papel sem `RELENTLESS_ROLE` ou `CLAUDE_AGENT` no ambiente. O isolamento fica no
+  contexto novo e no pedido, que diz que ele só lê. O caminho `claude -p` do
+  `run-isolated-review.sh` exporta as duas variáveis e passa a lista ao `claude`.
 - Antes de aplicar o veredito, o commit do PR tem que ser o mesmo do pacote. Se mudou, o pacote e a
   revisão são refeitos.
 
@@ -112,9 +138,13 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 
 - O `relentless:qa` roda `node scripts/hexgym/check.mjs <partes>` na worktree e usa o app de verdade
   quando a Task tem tela (simulador, com os prints e vídeos das Restrições globais).
-- O orquestrador publica com o `fill-qa-section.sh`, que comenta no PR e troca a seção
-  `## QA / dogfood result` do corpo até o próximo título `## `. Por isso o modelo de PR passa a usar
-  `##` em todos os títulos.
+- O orquestrador publica o QA em duas partes. O comentário no PR sai do
+  `fill-qa-section.sh --no-patch-body`. A seção `## QA / dogfood result` do corpo sai do
+  `context.mjs qa`, que troca a seção até o próximo título `## ` e passa a `###` os títulos `#` e
+  `##` do QA, para a troca seguinte não parar no meio dele. O `fill-qa-section.sh` não troca o
+  corpo aqui: ele usa `awk -v qa="$QA"`, e o `/usr/bin/awk` do macOS (versão 20200816) recusa um
+  `-v` com quebra de linha (`newline in string`) e sai com 2, depois de o comentário já ter saído.
+- O modelo de PR passa a usar `##` em todos os títulos, para a troca parar no título seguinte.
 
 ### O registro
 
@@ -122,7 +152,9 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   (`human_decide`) e por decisão do orquestrador (`merge`, `changes_requested`, `state_change`), com
   os campos do `orchestrator.md`.
 - As linhas esperam em `.claude/hexgym/log-pendente.jsonl`, fora do git, e entram no primeiro commit
-  da branch da próxima issue com código. Nunca entram num PR em revisão.
+  da branch da próxima issue com código, só quando nenhum outro PR está aberto para `develop`: as
+  linhas vão no fim do arquivo, e dois PRs abertos que acrescentam no fim entram em conflito. Nunca
+  entram num PR em revisão.
 
 ### Etiquetas, modelos e milestones
 
@@ -142,11 +174,17 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 
 ## Doutrina para quem escreve
 
-- Para trocar o estado, `set-state.sh`; nunca `gh issue edit` com `state:*`.
+- Para trocar o estado, `set-state.sh`; nunca `gh issue edit` com `state:*`. A exceção é o
+  `board.mjs sync`, que dá `state:todo` à issue aberta sem nenhuma `state:*`: é o estado inicial, e
+  ele não troca nenhum outro.
 - `human:pending` só entra pelo `request-decision.sh` e só sai pelo `/decide` do Lipe. Agente não
   roda `/decide` nem `decide.sh`.
 - Achado de revisão, de QA ou de CI que fica para depois vira uma issue no milestone da fase,
-  sub-issue do épico, com a linha `Origem: achado durante <revisão|QA|CI> da PR #<n>`.
+  sub-issue do épico, com a linha `Origem: achado durante <revisão|QA|CI> da PR #<n>`, e entra na
+  linha `Depende de:` da issue da versão, para a versão esperar por ele. O que pode esperar a fase
+  seguinte vai para o milestone dela, com `orphan:ok`, até o épico daquela fase o adotar.
+- A Task da versão, a última do plano, tem a própria worktree (`release/<versão>`) e entra em `main`
+  com merge normal: o orquestrador segue os passos dela, sem o laço das outras.
 - Os nomes e as opções desta nota são os do relentless 1.4.8. Depois de atualizar o plugin, reler o
   `agents/orchestrator.md` e os scripts que a skill chama.
 
@@ -154,13 +192,17 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 
 - `run-isolated-review.sh`, linhas 90 a 98: com `--from-output`, copia o arquivo para
   `.relentless/review/<pr>/reviewer-out.md` e aplica o veredito, sem chamar outro `claude`.
-- `apply-review-verdict.sh`: o comentário do veredito leva os achados e o commit; as etiquetas só
-  mudam depois dele.
-- `fill-qa-section.sh`: troca do título `## QA / dogfood result` até o próximo `## `.
+- `apply-review-verdict.sh`: o comentário do veredito leva o commit e, só com `changes_requested`,
+  as linhas com `[blocker|major|minor|nit]` (`collect_findings`); as etiquetas só mudam depois dele.
+- `fill-qa-section.sh`: comenta primeiro (linha 29) e só depois troca o corpo, com `awk -v` (linhas
+  34 a 43), sob `set -euo pipefail`; com um QA de mais de uma linha, o awk do macOS sai com 2, e o
+  corpo fica sem QA. O mesmo texto passado pelo ambiente (`QA="..." awk 'BEGIN{print ENVIRON["QA"]}'`)
+  funciona, e a correção pode ir ao relentless.
 - `merge-if-ready.sh`, linhas 634 a 638: no modo `auto`, `gh pr merge --merge`.
 - `worktree-cleanup.sh`: remove a worktree e não apaga a branch.
-- `pretool-protect-worktree-write.sh`: só barra escrita fora da worktree quando o checkout tem
-  `.relentless/worktree.json` ou o ambiente diz `RELENTLESS_ROLE=implementer`.
+- `pretool-protect-worktree-write.sh` (linha 9): só barra escrita fora da worktree quando o checkout
+  tem `.relentless/worktree.json` ou o ambiente tem `RELENTLESS_ROLE=implementer` ou
+  `RELENTLESS_WORKTREE`.
 - Neste checkout, `gh repo set-default --view` imprime `lipedesign/openGym`, e o repositório tem
   `delete_branch_on_merge` ligado.
 - `updateProjectV2View` com `filter` testado sem mudar nada na visão "Pede você", em 01/11/2026.
@@ -169,3 +211,12 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   por `human:decided` e volta para `state:todo`.
 - `check-milestone-outcomes.sh` só lê os milestones abertos (`milestones?state=open`): no fim da
   fase, ele roda antes de o milestone fechar.
+- `merge-if-ready.sh`, linhas 600 a 614: no modo `human`, o `--dry-run` sai antes do `finish_ci`,
+  sem olhar a CI (o `finish_ci` só vem na linha 616).
+- `wait-ci.sh`, linha 106: lê só a última execução da branch (`gh run list --branch … --limit 1`).
+- Em 01/11/2026, num PR sem nenhum check, `gh pr checks 30 -R lipedesign/openGym --required` e o
+  mesmo com `--json name,bucket` imprimiram "no checks reported" e saíram com 1; e
+  `required_status_checks` de `develop` respondeu 404, "Required status checks not enabled".
+- `pretool-reviewer-isolation.sh`, linhas 131 e 132: lê o papel de `RELENTLESS_ROLE` e de
+  `CLAUDE_AGENT`. O `run-isolated-review.sh` exporta as duas nas linhas 141 e 142 e passa a lista de
+  comandos ao `claude -p` (linha 147).

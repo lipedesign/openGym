@@ -460,8 +460,10 @@ fim da fase → release/<versão>, a partir de develop → build interno no Test
   issue no merge (o GitHub só fecha a issue no merge na branch padrão).
 - `main` e `develop` são protegidas, também para a conta admin: só recebem PR, sem force push e sem
   apagar a branch. Os checks obrigatórios são o `tests-ok` e, quando o workflow do HexGym nascer na
-  fase 0, o `hexgym-ok` (veja "Onde roda"). Enquanto as Actions do fork não estão ligadas (issue #3),
-  nenhum check roda, e o que garante um PR é a revisão isolada.
+  fase 0, o `hexgym-ok` (veja "Onde roda"). Torná-los obrigatórios muda a proteção, uma parada do
+  relentless: o founder dá o ok no pedido da issue #3, junto com o clique que liga as Actions do
+  fork. Até lá, nenhum check roda, e o que garante um PR é a revisão isolada. Depois da #3, com ou
+  sem a proteção, o agente confere os checks pelo nome antes de cada merge.
 - O merge de uma feature em `develop` é do agente, em squash, quando a CI passa e a revisão isolada
   aprova o último commit do PR (`review:approved`).
 - Entram com merge normal, para guardar a história: o PR de sync com o openGym (seção 8.11) e as
@@ -509,8 +511,9 @@ O chamado aparece na conversa com o tech lead e como comentário na issue ou no 
   e o `ios.yml`, que compila a casca do openGym quando um PR mexe nela. Os dois olham só o código do
   openGym: num PR só do HexGym, o `tests-ok` fica verde sem rodar nada.
 - As checagens do HexGym (seção 8.10) ficam num workflow próprio, `.github/workflows/hexgym.yml`, que
-  o openGym não tem e por isso não dá conflito no sync. O resumo dele, o job `hexgym-ok`, também é
-  check obrigatório em `main` e `develop`. Ele nasce na fase 0, com o projeto Xcode (issue #9).
+  o openGym não tem e por isso não dá conflito no sync. O resumo dele, o job `hexgym-ok`, também vira
+  check obrigatório em `main` e `develop`, com o mesmo ok do founder. Ele nasce na fase 0, com o
+  projeto Xcode (issue #9).
 - Os modelos de issue e de PR do fork são do HexGym. No sync com o openGym, conflito neles fica com a
   versão do HexGym: um modelo que o fork apagou e o openGym mudou volta como conflito, resolvido com
   `git rm`, e um modelo novo do openGym também é apagado no sync.
