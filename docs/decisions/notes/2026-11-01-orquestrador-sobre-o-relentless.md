@@ -96,9 +96,11 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   `worktree-create.sh --repo lipedesign/openGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
 - O merge segue a nota anterior: `merge-if-ready.sh --dry-run` saindo com 0 (uma linha `ADRs:`,
   `review:approved` e o veredito no commit atual; no modo `human`, o dry-run sai antes de olhar a
-  CI), o PR sem conflito (`mergeable` igual a `MERGEABLE`), os checks verdes depois da #3 e o squash
-  à mão com `gh pr merge --squash --match-head-commit`. O `merge.default` continua `human`: quem faz
-  o merge é o tech lead, como diz a seção 9.1.
+  CI, e não confere se o PR está aberto), o PR aberto e sem conflito (`state` igual a `OPEN` e
+  `mergeable` igual a `MERGEABLE`), os checks verdes depois da #3 e o squash à mão com
+  `gh pr merge --squash --match-head-commit`. O `merge.default` continua `human`: quem faz o merge
+  é o tech lead, como diz a seção 9.1. Um PR fechado só volta a abrir quando é o fechar e reabrir
+  do orquestrador que parou no meio; fechado por outra razão, como à mão, vira pedido.
 - Com o dry-run em 1, a mensagem diz o que falta: a linha `ADRs:` sem motivo volta ao implementador,
   e um veredito velho ou sem o commit volta ao QA e à revisão. O `orchestrator.md` (linha 46) manda
   pôr `human:pending` à mão nesse caso; aqui, ele só entra pelo `request-decision.sh`.
@@ -115,12 +117,13 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   macOS). Passado isso, o check travou: um pedido de decisão, com o estado de cada check e o link da
   execução. CI pendente não é parada: esperar o Lipe pediria uma pessoa fora da lista fechada, e um
   job preso na fila pararia a fase sem nenhum pedido. Check vermelho volta ao implementador com o
-  log; job cancelado ou com falha fora do código roda de novo uma vez por execução, só com ela na
-  tentativa 1 (`gh run rerun --failed`), e a falha que se repete vira pedido. Depois disso, ou de
-  um PR reaberto, a lista pode trazer ainda o check velho até o job novo começar. Por isso, o
-  `checks` confere no GitHub a execução de cada job: uma que ainda roda deixa o check pendente, e
-  uma criada antes do último `reopened` do PR não conta. Nada disso depende de um instante anotado
-  num comentário, e a retomada só lê tudo de novo.
+  log; job cancelado ou com falha fora do código roda de novo uma vez por execução
+  (`gh run rerun --failed`), só com ela na tentativa 1 e sem um `rerun` dela já comentado no
+  commit, e a falha que se repete vira pedido. Depois disso, ou de um PR reaberto, a lista pode
+  trazer ainda o check velho até o job novo começar, ou nem trazer o check. Por isso, o `checks`
+  confere no GitHub a execução de cada job: uma que ainda roda deixa o check pendente, e uma criada
+  antes do último `reopened` do PR não conta (no mesmo segundo, conta). Nada disso depende de um
+  instante anotado num comentário, e a retomada só lê tudo de novo.
   Um nome que não aparece, sem nenhuma execução do workflow no commit (`gh run list --commit`), é um
   PR aberto antes de o workflow existir em `develop` ou de as Actions rodarem por evento: nenhum
   evento novo chega a ele sozinho. Fechar e reabrir o PR dispara o `pull_request` (o `reopened`)
@@ -279,8 +282,10 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   `cancel`, e o `link` de um job das Actions é `.../actions/runs/<execução>/job/<job>`; o de um
   check de outro app não tem `/actions/`. O `gh run view --json` traz o `attempt`, o `status` e o
   `createdAt`, e os eventos do PR (`repos/.../issues/<pr>/events`) trazem cada `reopened` com a
-  hora. Logo depois de um `rerun`, a execução já está em `queued`, com o mesmo `createdAt`, e o
-  `attempt` não muda enquanto a tentativa nova espera na fila (execução 41267573719, 01/11/2026).
+  hora, ao segundo, como o `createdAt`. Logo depois de um `rerun`, a execução já está em `queued`,
+  com o mesmo `createdAt`, e o `attempt` não muda enquanto a tentativa nova espera na fila; o
+  `check-runs` do commit, no filtro padrão, não traz nenhum, e os jobs da tentativa 1 só aparecem
+  com `filter=all` (execução 41267573719, 01/11/2026).
 - O `test.yml` e o `hexgym.yml` da Task 11 ouvem `pull_request` sem `types`, o que inclui o
   `reopened`. O merge de um workflow novo em `develop` não gera evento nos PRs já abertos, e o
   `gh run list` (gh 2.96) aceita `--commit`.
