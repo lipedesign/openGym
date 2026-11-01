@@ -425,9 +425,9 @@ que são dele. Nas palavras do founder: "no final do dia vai ser tudo feito por 
   que está pronto e, quando houver, o que o founder vê; o de bug pede os passos, onde aconteceu, o
   aparelho com o sistema e a versão do app.
 - **Etiquetas** de tipo (`feature`, `bug`, `docs`, `chore`, `upstream`), de área (`motor`, `dados`,
-  `sync`, `watch`, `design-system`, `widgets`, `build`) e duas de estado: `decisão do founder` e
-  `bloqueado`. `upstream` é o trabalho de trazer as mudanças do openGym original; `sync` é a
-  sincronização com um servidor openGym.
+  `sync`, `watch`, `design-system`, `widgets`, `build`, `acessibilidade`) e duas de estado:
+  `decisão do founder` e `bloqueado`. `upstream` é o trabalho de trazer as mudanças do openGym
+  original; `sync` é a sincronização com um servidor openGym.
 - **O plano de cada fase** é escrito antes de a fase começar, em `docs/superpowers/plans/`, e vira
   as issues do milestone.
 
