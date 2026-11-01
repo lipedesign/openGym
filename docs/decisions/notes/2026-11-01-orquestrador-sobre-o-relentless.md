@@ -100,7 +100,8 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   `mergeable` igual a `MERGEABLE`), os checks verdes depois da #3 e o squash à mão com
   `gh pr merge --squash --match-head-commit`. O `merge.default` continua `human`: quem faz o merge
   é o tech lead, como diz a seção 9.1. Um PR fechado só volta a abrir quando é o fechar e reabrir
-  do orquestrador que parou no meio; fechado por outra razão, como à mão, vira pedido.
+  do orquestrador que parou no meio, que ele marca com um comentário na issue antes de fechar;
+  fechado por outra razão, como à mão, vira pedido.
 - Com o dry-run em 1, a mensagem diz o que falta: a linha `ADRs:` sem motivo volta ao implementador,
   e um veredito velho ou sem o commit volta ao QA e à revisão. O `orchestrator.md` (linha 46) manda
   pôr `human:pending` à mão nesse caso; aqui, ele só entra pelo `request-decision.sh`.
@@ -127,9 +128,11 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   Um nome que não aparece, sem nenhuma execução do workflow no commit (`gh run list --commit`), é um
   PR aberto antes de o workflow existir em `develop` ou de as Actions rodarem por evento: nenhum
   evento novo chega a ele sozinho. Fechar e reabrir o PR dispara o `pull_request` (o `reopened`)
-  com a base atual, sem mudar o commit nem o veredito. O PR de teste da #3 faz o mesmo quando volta
-  de um `/decide` ainda sem execução. Uma falha do próprio `gh` sai com 4, e não com 1, para não
-  passar por check vermelho.
+  com a base atual, sem mudar o commit nem o veredito. Um comentário na issue antes de fechar marca
+  esse fechar e reabrir: só com ele o portão reabre um PR que ficou fechado, porque o `gh` usa a
+  conta do founder, e quem fechou não diz nada. O PR de teste da #3 faz o mesmo quando volta de um
+  `/decide` ainda sem execução. Uma falha do próprio `gh` sai com 4, e não com 1, para não passar
+  por check vermelho.
 - Conflito com `develop`: o implementador traz o `origin/develop` para a branch com merge, sem
   rebase (reescrever histórico é parada), e o PR volta ao QA e à revisão.
 - O implementador roda o `wait-ci.sh` uma vez só e não fica esperando: com a saída 3 (pendente),
