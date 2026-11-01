@@ -84,28 +84,28 @@ docs/superpowers/.gitignore      deixa o git ver os planos (o openGym ignora doc
 
 | Task | Issue | O que entrega | Depende de | Quem faz |
 |---|---|---|---|---|
-| 1 | nova | O agente orquestrador | | tech lead |
+| 1 | #15 | O agente orquestrador | | tech lead |
 | 2 | #3 | Workflows herdados desligados e `tests-ok` obrigatório | | tech lead |
 | 3 | #11 | Branches e etiquetas herdadas | 1 | orquestrador |
-| 4 | nova | O motor sem React | 1 | orquestrador |
-| 5 | nova | O script do motor | 4 | orquestrador |
-| 6 | nova | Os testes do lib contra o script e a carga no jsc | 5 | orquestrador |
-| 7 | nova | O pacote HexEngine | 5 | orquestrador |
-| 8 | nova | O pacote HexStore | 7 | orquestrador |
-| 9 | nova | O projeto Xcode com os quatro alvos | 7, 8 | orquestrador |
-| 10 | nova | O app abre com o motor e os dados | 9 | orquestrador |
+| 4 | #16 | O motor sem React | 1 | orquestrador |
+| 5 | #17 | O script do motor | 4 | orquestrador |
+| 6 | #18 | Os testes do lib contra o script e a carga no jsc | 5 | orquestrador |
+| 7 | #19 | O pacote HexEngine | 5 | orquestrador |
+| 8 | #20 | O pacote HexStore | 7 | orquestrador |
+| 9 | #21 | O projeto Xcode com os quatro alvos | 7, 8 | orquestrador |
+| 10 | #22 | O app abre com o motor e os dados | 9 | orquestrador |
 | 11 | #9 | A CI do HexGym | 2, 6, 10 | orquestrador |
-| 12 | nova | Xcode 27.2, os IDs e o app no App Store Connect | 9 | founder |
-| 13 | nova | TestFlight a partir desta máquina | 10, 12 | orquestrador, com o ok do founder no primeiro envio |
+| 12 | #23 | Xcode 27.2, os IDs e o app no App Store Connect | 9 | founder |
+| 13 | #24 | TestFlight a partir desta máquina | 10, 12 | orquestrador, com o ok do founder no primeiro envio |
 | 14 | #8 | README, CONTRIBUTING e SECURITY do fork | 10 | orquestrador, com o texto aprovado pelo founder |
 | 15 | #10 | Cópia dos arquivos do corpo e procedência da referência | 1 | orquestrador, depois das respostas do founder |
-| 16 | nova | Versão 0.1.0 | todas as outras, menos a 15 | orquestrador, com a aprovação do founder |
+| 16 | #25 | Versão 0.1.0 | todas as outras, menos a 15 | orquestrador, com a aprovação do founder |
 
 Cada issue leva duas linhas que o orquestrador lê: `Depende de: #a, #b` (ou `nenhuma`) e `Plano: docs/superpowers/plans/2026-10-31-fase-0-fundacao.md, Task N`. O tech lead criou as issues novas junto com o PR deste plano, já com as duas linhas, e acrescentou as duas no fim das Notas da #3, da #8, da #9, da #10 e da #11. A #14 é este plano e fecha com o PR dele; a #3 fecha no mesmo dia, com a Task 2.
 
 Ficam fora desta fase, de propósito: o WatchCore em `apple/` (fase 4), o pacote `HexDesign` (fase 1), o `session-controller.js` (fase 3), as traduções do openGym em JSON (fase 2), o HealthKit, a sincronização com servidor e a medição num iPhone real com histórico grande (seção 8.13), que espera as telas que fazem esses cálculos (fases 3 e 5); nesta fase, a medida é a do `jsc` sem JIT, na Task 6.
 
-Ficam também para a fase 5, cada um com uma issue no milestone "Fase 5: O resto do openGym", o que o JavaScriptCore não tem e só a importação e a exportação usam: `URL` (sem ele, o `cleanUrl` de `media-refs.js` devolve `null` e o plano compartilhado perde os links dos exercícios personalizados), `fetch` (a importação do Hevy), `TextEncoder`, `TextDecoder` e `Blob` (o zip e o FIT), e a leitura das datas do Apple Health (o JavaScriptCore não entende `new Date('2024-01-15 07:30:00 +0100')`, usado em `import-csv.js:866`). Nenhuma tela da fase 0 chega nesses caminhos, e o teste `webGlobalsTheEngineDoesNotHaveYet` da Task 7 prende o que falta: quem trouxer um deles muda o teste junto.
+Ficam também para a fase 5, cada um com uma issue no milestone "Fase 5: O resto do openGym" (#26 e #27), o que o JavaScriptCore não tem e só a importação e a exportação usam: `URL` (sem ele, o `cleanUrl` de `media-refs.js` devolve `null` e o plano compartilhado perde os links dos exercícios personalizados), `fetch` (a importação do Hevy), `TextEncoder`, `TextDecoder` e `Blob` (o zip e o FIT), e a leitura das datas do Apple Health (o JavaScriptCore não entende `new Date('2024-01-15 07:30:00 +0100')`, usado em `import-csv.js:866`). Nenhuma tela da fase 0 chega nesses caminhos, e o teste `webGlobalsTheEngineDoesNotHaveYet` da Task 7 prende o que falta: quem trouxer um deles muda o teste junto.
 
 E duas coisas que a revisão do plano achou e ficam para depois, de propósito. A nota do dia é cortada por unidade de UTF-16 (`day-notes.js:33`), o que parte um emoji que cai na posição 500: o HexStore aceita esse texto (Task 8), e cortar por caractere é uma proposta ao openGym, para quando o founder falar com o Duarte. E o `save` do HexStore lê o `state.json` inteiro a cada gravação para decidir a cópia anterior: na fase 0 isso acontece uma vez por início, e a fase 3, que grava a cada série, mede antes de mudar.
 
@@ -113,7 +113,7 @@ E duas coisas que a revisão do plano achou e ficam para depois, de propósito. 
 
 ### Task 1: O agente orquestrador
 
-**Issue:** nova. **Quem faz:** o tech lead, à mão. É a única Task que não passa pelo orquestrador, porque é ela que cria o orquestrador.
+**Issue:** #15. **Quem faz:** o tech lead, à mão. É a única Task que não passa pelo orquestrador, porque é ela que cria o orquestrador.
 
 **Files:**
 - Create: `scripts/hexgym/project.json`
@@ -430,7 +430,7 @@ Comentar na #11 o que saiu, o que ficou e por quê, e `node scripts/hexgym/board
 
 ### Task 4: O motor sem React
 
-**Issue:** nova. São as três mudanças pequenas no código do openGym da seção 8.2. Cada uma vai num commit com mensagem em inglês, no estilo do openGym (`Área: o que mudou`), para poder ser proposta ao openGym. Propor fica com o founder (seção 9.1: falar com o Duarte).
+**Issue:** #16. São as três mudanças pequenas no código do openGym da seção 8.2. Cada uma vai num commit com mensagem em inglês, no estilo do openGym (`Área: o que mudou`), para poder ser proposta ao openGym. Propor fica com o founder (seção 9.1: falar com o Duarte).
 
 **Files:**
 - Create: `frontend/src/lib/state-core.js`, `frontend/src/lib/state-core.test.js`
@@ -544,7 +544,7 @@ git commit -m "Plans: the printable plan in lib/plan-print.js, so plan-share.js 
 
 ### Task 5: O script do motor
 
-**Issue:** nova.
+**Issue:** #17.
 
 **Files:**
 - Create: `apple/Packages/HexEngine/JS/values.js`, `polyfills.js`, `runtime.js`
@@ -732,7 +732,7 @@ git commit -m "Script do motor: os módulos limpos do lib num HexEngine só, com
 
 ### Task 6: Os testes do lib contra o script e a carga no jsc
 
-**Issue:** nova.
+**Issue:** #18.
 
 **Files:**
 - Create: `frontend/vitest.hexengine.config.js`
@@ -859,7 +859,7 @@ git commit -m "Os testes do lib contra o script do motor e o teste de carga no j
 
 ### Task 7: O pacote HexEngine
 
-**Issue:** nova.
+**Issue:** #19.
 
 **Files:**
 - Create: `apple/.gitignore`
@@ -1082,7 +1082,7 @@ git commit -m "HexEngine: o motor num JSContext dentro de um ator, com os casos 
 
 ### Task 8: O pacote HexStore
 
-**Issue:** nova.
+**Issue:** #20.
 
 **Files:**
 - Create: `apple/Packages/HexStore/Package.swift`
@@ -1224,7 +1224,7 @@ git commit -m "HexStore: o documento de dados no App Group, com cópia anterior"
 
 ### Task 9: O projeto Xcode com os quatro alvos
 
-**Issue:** nova.
+**Issue:** #21.
 
 **Files:**
 - Create: `apple/HexGym.xcodeproj/project.pbxproj`
@@ -1345,7 +1345,7 @@ git commit -m "Projeto Xcode do HexGym com os quatro alvos e o ícone provisóri
 
 ### Task 10: O app abre com o motor e os dados
 
-**Issue:** nova.
+**Issue:** #22.
 
 **Files:**
 - Create: `apple/HexGym/AppModel.swift`
@@ -1529,7 +1529,7 @@ Expected: `hexgym-ok` com `fail` e `BLOCKED`. Fechar o PR sem merge e apagar a b
 
 ### Task 12: Xcode 27.2, os IDs e o app no App Store Connect
 
-**Issue:** nova, com a etiqueta `decisão do founder` e atribuída a `lipedesign`. **Quem faz:** o founder. O orquestrador só confere, sem ler segredo nenhum.
+**Issue:** #23, com a etiqueta `decisão do founder` e atribuída a `lipedesign`. **Quem faz:** o founder. O orquestrador só confere, sem ler segredo nenhum.
 
 O que o founder faz, como lista na issue:
 
@@ -1568,7 +1568,7 @@ Comentar na issue o que foi conferido e `node scripts/hexgym/board.mjs move <n> 
 
 ### Task 13: TestFlight a partir desta máquina
 
-**Issue:** nova.
+**Issue:** #24.
 
 **Files:**
 - Create: `scripts/hexgym/testflight.mjs`, `scripts/hexgym/testflight.test.mjs`
@@ -1732,7 +1732,7 @@ git commit -m "Onde ficam os arquivos de origem do corpo e de onde vem a referê
 
 ### Task 16: A versão 0.1.0
 
-**Issue:** nova. Depende de todas as outras, menos a 15: o passo 1 decide a #10.
+**Issue:** #25. Depende de todas as outras, menos a 15: o passo 1 decide a #10.
 
 - [ ] **Step 1: Check that the phase is done**
 
