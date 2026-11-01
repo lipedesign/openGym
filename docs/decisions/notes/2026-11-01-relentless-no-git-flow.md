@@ -38,16 +38,12 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
 - **Merge normal, nunca squash:** `release/*` e `hotfix/*` em `main`, o PR de `main` para `develop` e
   o sync `sync/opengym-<data>` (seção 8.11).
 - **CI:** o `test.yml` (job `tests-ok`) e, a partir da #9, o `hexgym.yml` (job `hexgym-ok`). O
-  `relentless-ci.yml` não fica no repositório. Os `checks` de `.relentless/config.json` mudam junto
-  com a #9.
-- **Etiquetas e modelos:** valem as etiquetas da seção 9.1, e as do relentless convivem com elas. A
-  revisão da #15 casa as de tipo (`enhancement` e `documentation` com `feature`, `docs`, `chore` e
-  `upstream`), as de espera (`human:pending` com `decisão do founder`, `state:blocked` com
-  `bloqueado`), os modelos de issue do relentless com os nossos e o modelo de PR com a seção
-  `## QA / dogfood result`, que o `fill-qa-section.sh` preenche. Ela também muda a Task 3 (#11), que
-  apaga seis etiquetas padrão que o bootstrap do relentless recria e confere uma lista exata de 15.
-- **Nenhuma onda do relentless antes da revisão da #15.** Os milestones ainda não têm a seção Outcome
-  nem os épicos, e o quadro do Project 6 não acompanha as etiquetas `state:*`.
+  `relentless-ci.yml` não fica no repositório. Os `checks` de `.relentless/config.json` passam a
+  chamar o `scripts/hexgym/check.mjs` na Tarefa 1 (#15).
+- **Etiquetas e modelos:** a revisão da #15 casou as nossas com as do relentless, e mudou a Task 3
+  (#11) junto. Ver `2026-11-01-orquestrador-sobre-o-relentless.md`.
+- **Nenhuma onda do relentless antes da Tarefa 1 (#15) entrar em `develop`.** É ela que dá ao
+  milestone a seção Outcome e o épico e faz o quadro do Project 6 acompanhar as etiquetas `state:*`.
 - **Título do PR** em português, simples, dizendo o que muda, porque vira o commit do squash. O
   prefixo de conventional commits não é exigido.
 - **Linha `ADRs:`** no corpo do PR, uma vez só. O modelo de PR já traz.
@@ -60,12 +56,10 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   - regrava o `.github/ISSUE_TEMPLATE/config.yml`, os três modelos de issue dele (o `epic.yml` volta
     com o YAML quebrado do original) e o `relentless-ci.yml`;
   - reescreve `stack`, `package_manager`, `checks` e `merge.default` do `.relentless/config.json`;
-  - volta a cor e a descrição das 26 etiquetas dele (a `bug` perde a descrição em português) e
-    recria as seis etiquetas padrão do GitHub que a Task 3 (#11) apaga.
+  - volta a cor e a descrição das 26 etiquetas dele (a `bug` perde a descrição em português).
 
   Depois dele, volte os arquivos com `git restore` e a descrição "Tipo: algo não funciona como
-  deveria" com `gh label edit`, apague o `relentless-ci.yml` e, se a #11 já tiver rodado, apague de
-  novo as seis etiquetas padrão.
+  deveria" com `gh label edit`, e apague o `relentless-ci.yml`.
 - Os ganchos de git valem no checkout cujo branch já traz `.relentless/githooks`: a `develop` e as
   features a partir deste PR, e a `main` só depois da primeira versão. Eles só guardam a `main` e
   recusam push forçado em qualquer branch. A

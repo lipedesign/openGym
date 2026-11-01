@@ -31,6 +31,7 @@ Keep the bullet list below current when adding records.
 
 ### Notes
 - [2026-11-01: o relentless no Git Flow do HexGym](notes/2026-11-01-relentless-no-git-flow.md)
+- [2026-11-01: o orquestrador do HexGym em cima do relentless](notes/2026-11-01-orquestrador-sobre-o-relentless.md)
 
 ## Helpers
 ```bash
