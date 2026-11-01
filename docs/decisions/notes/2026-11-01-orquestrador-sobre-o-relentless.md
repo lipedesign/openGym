@@ -105,7 +105,8 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - Os checks são lidos pelo nome, no `gh pr checks <pr> --json name,bucket`: o `tests-ok` e, depois
   da #9, o `hexgym-ok`, cada um com `pass`. O `wait-ci.sh` só olha a última execução da branch, e o
   `--required` só lista os checks que a proteção exige: sem nenhum, o `gh` sai com 1, o que
-  aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3).
+  aconteceria sempre se o founder não autorizasse a mudança na proteção (o pedido da #3). Um
+  pedido por falha no teste da #3 repete as duas opções da proteção, e vale a última resposta.
 - A espera pelos checks fica no primeiro plano e tem limite, como a do `wait_ci` do
   `merge-if-ready.sh` (`orchestrator.md`, linha 48). O `board.mjs checks` lê os checks a cada 30 s
   por até 8 minutos, abaixo dos 10 da ferramenta Bash, e o orquestrador o chama de novo enquanto a
@@ -114,6 +115,8 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
   execução. CI pendente não é parada: esperar o Lipe pediria uma pessoa fora da lista fechada, e um
   job preso na fila pararia a fase sem nenhum pedido. Check vermelho volta ao implementador com o
   log; job cancelado ou com falha fora do código roda de novo uma vez (`gh run rerun --failed`).
+  Depois disso, ou de um PR reaberto num commit com check vermelho, um `fail` só vale com a
+  execução nova terminada, porque a primeira leitura pode trazer o check velho.
   Um nome que não aparece, sem nenhuma execução do workflow no commit (`gh run list --commit`), é um
   PR aberto antes de o workflow existir em `develop` ou de as Actions rodarem por evento: nenhum
   evento novo chega a ele sozinho. Fechar e reabrir o PR dispara o `pull_request` (o `reopened`)
@@ -203,7 +206,7 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - O milestone de cada fase ganha a seção `## Outcome`, e a fase ganha um épico com todas as issues
   dela como sub-issues. A fase 0 recebe os dois na Tarefa 1; as outras, quando o plano delas for
   escrito. Antes de pegar issue, o orquestrador confere a fase: sem épico, faz esse começo, e, sem
-  o plano dela, avisa o Lipe e para.
+  o plano dela, avisa o Lipe e para. Uma retomada vem antes dessa conferência.
 - No `.relentless/config.json`, `checks.test` passa a ser `node scripts/hexgym/check.mjs` e
   `checks.install`, `npm ci && npm ci --prefix frontend`.
 
